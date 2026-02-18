@@ -1,0 +1,3 @@
+class ApiInterceptor {
+  // Interceptor logic
+}
