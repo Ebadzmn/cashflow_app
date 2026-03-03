@@ -19,6 +19,10 @@ import '../features/scan_receipt/scan_receipt_page.dart';
 import '../features/audit_readiness/audit_readiness_page.dart';
 import '../features/audit_readiness/expert_support_page.dart';
 import '../features/scan_receipt/scan_receipt_controller.dart';
+import '../features/profile/my_profile_page.dart';
+import '../features/profile/edit_profile_page.dart';
+import '../features/auth/forgot_password/change_password_page.dart';
+import '../features/auth/forgot_password/change_password_controller.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -75,20 +79,35 @@ class AppRouter {
         },
       ),
       GoRoute(
-      path: Routes.SCAN_RECEIPT,
-      builder: (context, state) {
-        Get.lazyPut(() => ScanReceiptController());
-        return const ScanReceiptPage();
-      },
-    ),
-    GoRoute(
-      path: Routes.AUDIT_READINESS,
-      builder: (context, state) => const AuditReadinessPage(),
-    ),
-    GoRoute(
-      path: Routes.EXPERT_SUPPORT,
-      builder: (context, state) => const ExpertSupportPage(),
-    ),
+        path: Routes.SCAN_RECEIPT,
+        builder: (context, state) {
+          Get.lazyPut(() => ScanReceiptController());
+          return const ScanReceiptPage();
+        },
+      ),
+      GoRoute(
+        path: Routes.AUDIT_READINESS,
+        builder: (context, state) => const AuditReadinessPage(),
+      ),
+      GoRoute(
+        path: Routes.EXPERT_SUPPORT,
+        builder: (context, state) => const ExpertSupportPage(),
+      ),
+      GoRoute(
+        path: Routes.MY_PROFILE,
+        builder: (context, state) => const MyProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.EDIT_PROFILE,
+        builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: Routes.CHANGE_PASSWORD,
+        builder: (context, state) {
+          Get.lazyPut(() => ChangePasswordController());
+          return const ChangePasswordPage();
+        },
+      ),
     ],
   );
 }

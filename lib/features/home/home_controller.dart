@@ -10,7 +10,9 @@ class HomeController extends GetxController {
       Get.dialog(
         const AddTransactionModal(),
         barrierDismissible: true,
-        barrierColor: Colors.black.withOpacity(0.3), // Light overlay, blur is inside the widget
+        barrierColor: Colors.black.withOpacity(
+          0.3,
+        ), // Light overlay, blur is inside the widget
       );
     } else {
       selectedIndex.value = index;

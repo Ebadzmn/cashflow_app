@@ -11,6 +11,7 @@ import 'widgets/stats_content.dart';
 
 import 'package:go_router/go_router.dart';
 import '../../../../routes/app_routes.dart';
+import 'widgets/settings_content.dart';
 
 class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
@@ -28,10 +29,12 @@ class HomePage extends GetView<HomeController> {
         ),
         child: Obx(() => _buildBody(context, controller.selectedIndex.value)),
       ),
-      bottomNavigationBar: Obx(() => CustomBottomNavBar(
-        selectedIndex: controller.selectedIndex.value,
-        onItemSelected: controller.changeTabIndex,
-      )),
+      bottomNavigationBar: Obx(
+        () => CustomBottomNavBar(
+          selectedIndex: controller.selectedIndex.value,
+          onItemSelected: controller.changeTabIndex,
+        ),
+      ),
     );
   }
 
@@ -59,9 +62,14 @@ class HomePage extends GetView<HomeController> {
       case 2:
         return const StatsContent();
       case 3:
-        return const Center(child: Text('Settings Content', style: TextStyle(color: Colors.white, fontSize: 24)));
+        return const SettingsContent();
       default:
-        return const Center(child: Text('Home Content', style: TextStyle(color: Colors.white, fontSize: 24)));
+        return const Center(
+          child: Text(
+            'Home Content',
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          ),
+        );
     }
   }
 
@@ -78,7 +86,11 @@ class HomePage extends GetView<HomeController> {
               color: const Color(0xFF2F80ED),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.qr_code_scanner,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           onTap: () {
             // Handle Scan Receipt
@@ -88,7 +100,11 @@ class HomePage extends GetView<HomeController> {
         ActionCard(
           icon: Icons.description,
           text: 'View Reports',
-          trailing: const Icon(Icons.bar_chart, color: Color(0xFFEB5757), size: 28),
+          trailing: const Icon(
+            Icons.bar_chart,
+            color: Color(0xFFEB5757),
+            size: 28,
+          ),
           onTap: () {
             // Handle View Reports
           },
@@ -97,7 +113,11 @@ class HomePage extends GetView<HomeController> {
         ActionCard(
           icon: Icons.check_circle_outline,
           text: 'Audit Readiness',
-          trailing: const Icon(Icons.pie_chart, color: Color(0xFFF2C94C), size: 28),
+          trailing: const Icon(
+            Icons.pie_chart,
+            color: Color(0xFFF2C94C),
+            size: 28,
+          ),
           onTap: () {
             context.push(Routes.AUDIT_READINESS);
           },
