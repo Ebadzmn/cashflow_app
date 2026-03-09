@@ -111,6 +111,7 @@ class SettingsContent extends GetView<HomeController> {
                           icon: Icons.workspace_premium_outlined,
                           title: 'Premium Plans',
                           subtitle: 'Purchase your new plan',
+                          onTap: () => context.push(Routes.PREMIUM_PLANS),
                         ),
                         _buildSettingsItem(
                           icon: Icons.person_outline,
@@ -128,16 +129,18 @@ class SettingsContent extends GetView<HomeController> {
                           icon: Icons.description_outlined,
                           title: 'Terms & Conditions',
                           subtitle: 'Read our terms and conditions carefully.',
+                          onTap: () => context.push(Routes.TERMS),
                         ),
                         _buildSettingsItem(
                           icon: Icons.shield_outlined,
                           title: 'Privacy Policy',
                           subtitle:
                               'Learn how your information is collected and used.',
+                          onTap: () => context.push(Routes.PRIVACY),
                         ),
                         const SizedBox(height: 20),
                         // Logout
-                        _buildLogoutItem(),
+                        _buildLogoutItem(context),
                       ],
                     ),
                   ),
@@ -193,20 +196,29 @@ class SettingsContent extends GetView<HomeController> {
     );
   }
 
-  Widget _buildLogoutItem() {
-    return Row(
-      children: [
-        const Icon(Icons.logout, color: Colors.redAccent, size: 28),
-        const SizedBox(width: 20),
-        Text(
-          'Logout',
-          style: GoogleFonts.outfit(
-            color: Colors.redAccent,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
+  Widget _buildLogoutItem(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Reset the tabs to Home (index 0) so the next login starts fresh.
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().selectedIndex.value = 0;
+        }
+        context.go(Routes.LOGIN);
+      },
+      child: Row(
+        children: [
+          const Icon(Icons.logout, color: Colors.redAccent, size: 28),
+          const SizedBox(width: 20),
+          Text(
+            'Logout',
+            style: GoogleFonts.outfit(
+              color: Colors.redAccent,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

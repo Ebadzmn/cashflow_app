@@ -13,7 +13,8 @@ class LoginPage extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents background from resizing when keyboard opens
+      resizeToAvoidBottomInset:
+          false, // Prevents background from resizing when keyboard opens
       body: SizedBox(
         width: double.infinity,
         height: double.infinity,
@@ -36,7 +37,7 @@ class LoginPage extends GetView<LoginController> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  
+
                   // Header
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -105,37 +106,50 @@ class LoginPage extends GetView<LoginController> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Obx(() => GlassTextField(
-                                controller: controller.passwordController,
-                                hintText: 'Enter your password',
-                                isPassword: true,
-                                isPasswordVisible: controller.isPasswordVisible.value,
-                                onTogglePassword: controller.togglePasswordVisibility,
-                              )),
+                              Obx(
+                                () => GlassTextField(
+                                  controller: controller.passwordController,
+                                  hintText: 'Enter your password',
+                                  isPassword: true,
+                                  isPasswordVisible:
+                                      controller.isPasswordVisible.value,
+                                  onTogglePassword:
+                                      controller.togglePasswordVisibility,
+                                ),
+                              ),
 
                               const SizedBox(height: 16),
 
                               // Remember Me & Forgot Password
                               Row(
                                 children: [
-                                  Obx(() => SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: Checkbox(
-                                      value: controller.rememberMe.value,
-                                      onChanged: (value) => controller.toggleRememberMe(),
-                                      fillColor: MaterialStateProperty.resolveWith(
-                                        (states) => states.contains(MaterialState.selected)
-                                            ? Colors.white
-                                            : Colors.white,
+                                  Obx(
+                                    () => SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: Checkbox(
+                                        value: controller.rememberMe.value,
+                                        onChanged: (value) =>
+                                            controller.toggleRememberMe(),
+                                        fillColor:
+                                            MaterialStateProperty.resolveWith(
+                                              (states) =>
+                                                  states.contains(
+                                                    MaterialState.selected,
+                                                  )
+                                                  ? Colors.white
+                                                  : Colors.white,
+                                            ),
+                                        checkColor: const Color(0xFF007ACC),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        side: BorderSide.none,
                                       ),
-                                      checkColor: const Color(0xFF007ACC),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      side: BorderSide.none,
                                     ),
-                                  )),
+                                  ),
                                   const SizedBox(width: 8),
                                   const Text(
                                     'Remember Me',
@@ -146,11 +160,13 @@ class LoginPage extends GetView<LoginController> {
                                   ),
                                   const Spacer(),
                                   TextButton(
-                                    onPressed: () => context.push(Routes.FORGOT_PASSWORD),
+                                    onPressed: () =>
+                                        context.push(Routes.FORGOT_PASSWORD),
                                     style: TextButton.styleFrom(
                                       padding: EdgeInsets.zero,
                                       minimumSize: Size.zero,
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                     ),
                                     child: const Text(
                                       'Forget Password?',
@@ -170,7 +186,14 @@ class LoginPage extends GetView<LoginController> {
                               // Login Button
                               PrimaryButton(
                                 text: 'Log in',
-                                onPressed: () => context.go(Routes.HOME),
+                                onPressed: () {
+                                  final isPro =
+                                      controller.emailController.text
+                                          .trim()
+                                          .toLowerCase() ==
+                                      'pro@gmail.com';
+                                  context.go(Routes.HOME, extra: isPro);
+                                },
                               ),
 
                               const SizedBox(height: 24),
@@ -192,7 +215,8 @@ class LoginPage extends GetView<LoginController> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                         recognizer: TapGestureRecognizer()
-                                          ..onTap = () => context.push(Routes.SIGNUP),
+                                          ..onTap = () =>
+                                              context.push(Routes.SIGNUP),
                                       ),
                                     ],
                                   ),

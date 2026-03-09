@@ -5,6 +5,7 @@ import '../../core/widgets/custom_bottom_nav_bar.dart';
 import 'widgets/home_header.dart';
 import 'widgets/balance_chart_card.dart';
 import 'widgets/audit_risk_card.dart';
+import 'widgets/blurred_card_overlay.dart';
 import 'widgets/action_card.dart';
 import 'widgets/transaction_content.dart';
 import 'widgets/stats_content.dart';
@@ -47,10 +48,24 @@ class HomePage extends GetView<HomeController> {
             padding: const EdgeInsets.only(bottom: 100), // Space for bottom nav
             children: [
               const HomeHeader(),
-              const BalanceChartCard(),
-              GestureDetector(
-                onTap: () => context.push(Routes.AUDIT_READINESS),
-                child: const AuditRiskCard(),
+              Obx(
+                () => BlurredCardOverlay(
+                  isPro: controller.isPro.value,
+                  child: const BalanceChartCard(),
+                ),
+              ),
+              Obx(
+                () => BlurredCardOverlay(
+                  isPro: controller.isPro.value,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (controller.isPro.value) {
+                        context.push(Routes.AUDIT_READINESS);
+                      }
+                    },
+                    child: const AuditRiskCard(),
+                  ),
+                ),
               ),
               const SizedBox(height: 8),
               _buildActionList(context),
@@ -93,7 +108,7 @@ class HomePage extends GetView<HomeController> {
             ),
           ),
           onTap: () {
-            // Handle Scan Receipt
+            context.push(Routes.SCAN_RECEIPT);
           },
         ),
         // View Reports
@@ -106,7 +121,9 @@ class HomePage extends GetView<HomeController> {
             size: 28,
           ),
           onTap: () {
-            // Handle View Reports
+            controller.changeTabIndex(
+              1,
+            ); // Navigates to TransactionContent (History)
           },
         ),
         // Audit Readiness

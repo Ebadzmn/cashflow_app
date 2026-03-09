@@ -1,0 +1,543 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'premium_plans_controller.dart';
+
+class PremiumPlansPage extends StatelessWidget {
+  const PremiumPlansPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.put(PremiumPlansController());
+
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/bg.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onPressed: () => context.pop(),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          'Purchase Premium Plans',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48), // To balance the back button
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+
+              // Title Section
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Choose Your Plan',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Unlock powerful features to manage your business finances.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    // Tab Bar
+                    Container(
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Obx(
+                        () => Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => controller.togglePlan(false),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: !controller.isYearly.value
+                                        ? const Color(
+                                            0xFF152643,
+                                          ) // Dark blue selection
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    'Monthly',
+                                    style: GoogleFonts.outfit(
+                                      color: Colors.white,
+                                      fontWeight: !controller.isYearly.value
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => controller.togglePlan(true),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: controller.isYearly.value
+                                        ? const Color(0xFF152643)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Yearly',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontWeight: controller.isYearly.value
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '-20%',
+                                          style: GoogleFonts.outfit(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Pricing Cards List
+              Expanded(
+                child: Obx(
+                  () => ListView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 10.0,
+                    ),
+                    children: [
+                      _buildPricingCard(
+                        title: 'Starter',
+                        price: '\$0',
+                        priceSubtitle: '',
+                        subtitle:
+                            'User acquisition, data capture, upsell funnel',
+                        features: [
+                          {
+                            'text': 'Basic income & expense tracking (limited)',
+                            'included': true,
+                          },
+                          {'text': 'Manual categories', 'included': true},
+                          {'text': 'Limited receipt uploads', 'included': true},
+                          {'text': 'Summary reports only', 'included': true},
+                          {'text': 'No audit tools', 'included': false},
+                          {'text': 'No priority support', 'included': false},
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      _buildPricingCard(
+                        title: 'BASIC – Growth',
+                        price: controller.isYearly.value ? '\$299' : '\$29',
+                        priceSubtitle: controller.isYearly.value
+                            ? '/year'
+                            : '/mon',
+                        subtitle: 'Solopreneurs, freelancers, small businesses',
+                        features: [
+                          {
+                            'text': 'Unlimited income & expense tracking',
+                            'included': true,
+                          },
+                          {'text': 'Receipt scanning (OCR)', 'included': true},
+                          {
+                            'text': 'IRS-standard expense categories',
+                            'included': true,
+                          },
+                          {'text': 'Mileage tracking', 'included': true},
+                          {'text': 'Monthly P&L report', 'included': true},
+                          {
+                            'text': 'Audit warnings (flags only)',
+                            'included': true,
+                          },
+                          {'text': 'Email support', 'included': true},
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      _buildPricingCard(
+                        title: 'PRO – Professional',
+                        price: controller.isYearly.value ? '\$599' : '\$59',
+                        priceSubtitle: controller.isYearly.value
+                            ? '/year'
+                            : '/mon',
+                        subtitle:
+                            'High-income earners, contractors, serious compliance',
+                        isRecommended: true,
+                        features: [
+                          {'text': 'Advanced reports', 'included': true},
+                          {'text': 'Schedule C summaries', 'included': true},
+                          {'text': 'Quarterly tax estimates', 'included': true},
+                          {'text': 'Export to CPA (CSV/PDF)', 'included': true},
+                          {
+                            'text': 'AI expense categorization',
+                            'included': true,
+                          },
+                          {'text': 'Priority email support', 'included': true},
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      _buildPricingCard(
+                        title: 'ELITE – Power User',
+                        price: controller.isYearly.value ? '\$999' : '\$99',
+                        priceSubtitle: controller.isYearly.value
+                            ? '/year'
+                            : '/mon',
+                        subtitle: 'Companies, LLCs, multiple businesses',
+                        features: [
+                          {'text': 'Audit-readiness system', 'included': true},
+                          {
+                            'text': 'IRS-mapped expense locking',
+                            'included': true,
+                          },
+                          {
+                            'text': 'AI audit risk indicators',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Red-flag detection alerts',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Income discrepancy monitoring',
+                            'included': true,
+                          },
+                          {'text': 'Audit-ready binder PDF', 'included': true},
+                          {'text': 'CPA share-access link', 'included': true},
+                          {'text': 'Priority chat support', 'included': true},
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      _buildPricingCard(
+                        title: 'CASHFLOWIQ SHIELD™ – Audit Defense',
+                        price: controller.isYearly.value ? '\$1499' : '\$149',
+                        priceSubtitle: controller.isYearly.value
+                            ? '/year'
+                            : '/mon',
+                        subtitle: 'Companies, LLCs, multiple businesses',
+                        features: [
+                          {
+                            'text': 'All Elite features included',
+                            'included': true,
+                          },
+                          {
+                            'text':
+                                'IRS & state audit defense via licensed partner',
+                            'included': true,
+                          },
+                          {
+                            'text': 'IRS notice upload & handling',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Audit response preparation',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Professional representation',
+                            'included': true,
+                          },
+                          {'text': 'AI audit risk score', 'included': true},
+                          {
+                            'text':
+                                'Misclassification & high-risk deduction alerts',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Document request checklist',
+                            'included': true,
+                          },
+                          {
+                            'text': 'Business tax exposure dashboard',
+                            'included': true,
+                          },
+                          {'text': 'Priority human support', 'included': true},
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPricingCard({
+    required String title,
+    required String price,
+    required String priceSubtitle,
+    required String subtitle,
+    required List<Map<String, dynamic>> features,
+    bool isRecommended = false,
+  }) {
+    final cardContent = Stack(
+      children: [
+        // The Card Background Image
+        Positioned.fill(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image.asset(
+              'assets/images/Pricing_card.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // The Card Outline
+        Positioned.fill(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+        // The Content
+        Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.layers,
+                  color: Color(0xFF152643),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    price,
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (priceSubtitle.isNotEmpty)
+                    Text(
+                      priceSubtitle,
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Column(
+                children: features.map((feature) {
+                  return _buildFeatureItem(
+                    feature['text'] as String,
+                    feature['included'] as bool,
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0288D1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Purchase',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    if (!isRecommended) {
+      return cardContent;
+    }
+
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.topCenter,
+      children: [
+        Padding(padding: const EdgeInsets.only(top: 16.0), child: cardContent),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF152643),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Recommended',
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(Icons.electric_bolt, color: Colors.white, size: 14),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureItem(String text, bool isIncluded) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            isIncluded ? Icons.check : Icons.close,
+            color: isIncluded ? Colors.white : Colors.white54,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.outfit(
+                color: isIncluded ? Colors.white : Colors.white54,
+                fontSize: 14,
+                fontWeight: isIncluded ? FontWeight.w500 : FontWeight.normal,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

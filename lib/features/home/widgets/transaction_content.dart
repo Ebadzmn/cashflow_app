@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/transaction_controller.dart';
+import '../home_controller.dart';
 
 class TransactionContent extends StatelessWidget {
   const TransactionContent({super.key});
@@ -15,13 +16,24 @@ class TransactionContent extends StatelessWidget {
         children: [
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   onPressed: () {
-                    // Usually back or close
+                    try {
+                      Get.find<HomeController>().changeTabIndex(0);
+                    } catch (e) {
+                      Get.back();
+                    }
                   },
                 ),
                 const Expanded(
@@ -39,36 +51,47 @@ class TransactionContent extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Segmented Control
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-            child: Obx(() => _SegmentSwitch(
-              selectedIndex: controller.selectedIndex.value,
-              onChanged: (index) {
-                controller.changeFilter(index);
-              },
-            )),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 8.0,
+            ),
+            child: Obx(
+              () => _SegmentSwitch(
+                selectedIndex: controller.selectedIndex.value,
+                onChanged: (index) {
+                  controller.changeFilter(index);
+                },
+              ),
+            ),
           ),
-          
+
           const SizedBox(height: 16),
 
           // Transaction List
           Expanded(
-            child: Obx(() => ListView.builder(
-              padding: const EdgeInsets.only(bottom: 100, left: 10, right: 10),
-              itemCount: controller.filteredTransactions.length,
-              itemBuilder: (context, index) {
-                final transaction = controller.filteredTransactions[index];
-                return _TransactionItem(
-                  title: transaction.title,
-                  subtitle: transaction.subtitle,
-                  amount: transaction.amount,
-                  isIncome: transaction.isIncome,
-                  trailingText: transaction.trailingText,
-                );
-              },
-            )),
+            child: Obx(
+              () => ListView.builder(
+                padding: const EdgeInsets.only(
+                  bottom: 100,
+                  left: 10,
+                  right: 10,
+                ),
+                itemCount: controller.filteredTransactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = controller.filteredTransactions[index];
+                  return _TransactionItem(
+                    title: transaction.title,
+                    subtitle: transaction.subtitle,
+                    amount: transaction.amount,
+                    isIncome: transaction.isIncome,
+                    trailingText: transaction.trailingText,
+                  );
+                },
+              ),
+            ),
           ),
         ],
       ),
@@ -80,10 +103,7 @@ class _SegmentSwitch extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onChanged;
 
-  const _SegmentSwitch({
-    required this.selectedIndex,
-    required this.onChanged,
-  });
+  const _SegmentSwitch({required this.selectedIndex, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +118,7 @@ class _SegmentSwitch extends StatelessWidget {
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final segmentWidth = width / 3;
-          
+
           // Calculate alignment based on index: 0 -> -1.0, 1 -> 0.0, 2 -> 1.0
           final alignment = Alignment(
             selectedIndex == 0 ? -1.0 : (selectedIndex == 1 ? 0.0 : 1.0),
@@ -130,7 +150,7 @@ class _SegmentSwitch extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               // Text Labels
               Row(
                 children: [
@@ -167,7 +187,6 @@ class _SegmentSwitch extends StatelessWidget {
     );
   }
 }
-
 
 class _TransactionItem extends StatelessWidget {
   final String title;
@@ -209,21 +228,26 @@ class _TransactionItem extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isIncome 
+              color: isIncome
                   ? const Color(0xFF27AE60).withOpacity(0.2) // Green tint
                   : const Color(0xFFEB5757).withOpacity(0.2), // Red tint
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              isIncome ? Icons.arrow_outward : Icons.call_received, // Not exact, using standard icons for now
+              isIncome
+                  ? Icons.arrow_outward
+                  : Icons
+                        .call_received, // Not exact, using standard icons for now
               // Design shows arrow up-right for income, arrow down-left for expense
               // Let's refine icons
-              color: isIncome ? const Color(0xFF27AE60) : const Color(0xFFEB5757),
+              color: isIncome
+                  ? const Color(0xFF27AE60)
+                  : const Color(0xFFEB5757),
               size: 24,
             ),
           ),
           const SizedBox(width: 16),
-          
+
           // Details
           Expanded(
             child: Column(
@@ -243,7 +267,9 @@ class _TransactionItem extends StatelessWidget {
                     Text(
                       amount,
                       style: TextStyle(
-                        color: isIncome ? const Color(0xFF27AE60) : const Color(0xFFEB5757),
+                        color: isIncome
+                            ? const Color(0xFF27AE60)
+                            : const Color(0xFFEB5757),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),

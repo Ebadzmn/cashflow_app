@@ -13,4 +13,7 @@ abstract class Routes {
   static const MY_PROFILE = '/my-profile';
   static const EDIT_PROFILE = '/edit-profile';
   static const CHANGE_PASSWORD = '/change-password';
+  static const PREMIUM_PLANS = '/premium-plans';
+  static const TERMS = '/terms';
+  static const PRIVACY = '/privacy';
 }

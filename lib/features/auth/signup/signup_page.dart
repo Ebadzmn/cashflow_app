@@ -36,7 +36,7 @@ class SignupPage extends GetView<SignupController> {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  
+
                   // Header
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -122,13 +122,17 @@ class SignupPage extends GetView<SignupController> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Obx(() => GlassTextField(
-                                controller: controller.passwordController,
-                                hintText: 'Enter your password',
-                                isPassword: true,
-                                isPasswordVisible: controller.isPasswordVisible.value,
-                                onTogglePassword: controller.togglePasswordVisibility,
-                              )),
+                              Obx(
+                                () => GlassTextField(
+                                  controller: controller.passwordController,
+                                  hintText: 'Enter your password',
+                                  isPassword: true,
+                                  isPasswordVisible:
+                                      controller.isPasswordVisible.value,
+                                  onTogglePassword:
+                                      controller.togglePasswordVisibility,
+                                ),
+                              ),
 
                               const SizedBox(height: 16),
 
@@ -142,13 +146,18 @@ class SignupPage extends GetView<SignupController> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Obx(() => GlassTextField(
-                                controller: controller.confirmPasswordController,
-                                hintText: 'Re-enter your password',
-                                isPassword: true,
-                                isPasswordVisible: controller.isConfirmPasswordVisible.value,
-                                onTogglePassword: controller.toggleConfirmPasswordVisibility,
-                              )),
+                              Obx(
+                                () => GlassTextField(
+                                  controller:
+                                      controller.confirmPasswordController,
+                                  hintText: 'Re-enter your password',
+                                  isPassword: true,
+                                  isPasswordVisible:
+                                      controller.isConfirmPasswordVisible.value,
+                                  onTogglePassword: controller
+                                      .toggleConfirmPasswordVisibility,
+                                ),
+                              ),
 
                               const SizedBox(height: 20),
 
@@ -156,29 +165,39 @@ class SignupPage extends GetView<SignupController> {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Obx(() => SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: Checkbox(
-                                      value: controller.termsAccepted.value,
-                                      onChanged: (value) => controller.toggleTerms(),
-                                      fillColor: MaterialStateProperty.resolveWith(
-                                        (states) => states.contains(MaterialState.selected)
-                                            ? Colors.white
-                                            : Colors.white,
+                                  Obx(
+                                    () => SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: Checkbox(
+                                        value: controller.termsAccepted.value,
+                                        onChanged: (value) =>
+                                            controller.toggleTerms(),
+                                        fillColor:
+                                            MaterialStateProperty.resolveWith(
+                                              (states) =>
+                                                  states.contains(
+                                                    MaterialState.selected,
+                                                  )
+                                                  ? Colors.white
+                                                  : Colors.white,
+                                            ),
+                                        checkColor: const Color(0xFF007ACC),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        side: BorderSide.none,
                                       ),
-                                      checkColor: const Color(0xFF007ACC),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      side: BorderSide.none,
                                     ),
-                                  )),
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: RichText(
                                       text: TextSpan(
-                                        text: 'By creating an account or signing you agree to our ',
+                                        text:
+                                            'By creating an account or signing you agree to our ',
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 12,
@@ -189,11 +208,12 @@ class SignupPage extends GetView<SignupController> {
                                             text: 'Terms and Conditions',
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              decoration: TextDecoration.underline,
+                                              decoration:
+                                                  TextDecoration.underline,
                                             ),
                                             recognizer: TapGestureRecognizer()
                                               ..onTap = () {
-                                                // Handle terms click
+                                                context.push(Routes.TERMS);
                                               },
                                           ),
                                         ],
@@ -230,7 +250,8 @@ class SignupPage extends GetView<SignupController> {
                                           fontWeight: FontWeight.bold,
                                         ),
                                         recognizer: TapGestureRecognizer()
-                                          ..onTap = () => context.push(Routes.LOGIN),
+                                          ..onTap = () =>
+                                              context.push(Routes.LOGIN),
                                       ),
                                     ],
                                   ),

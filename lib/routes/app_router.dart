@@ -7,6 +7,7 @@ import '../features/onboarding/onboarding_page.dart';
 import '../features/onboarding/onboarding_binding.dart';
 import '../features/home/home_page.dart';
 import '../features/home/home_binding.dart';
+import '../features/home/home_controller.dart';
 import '../features/auth/login/login_page.dart';
 import '../features/auth/login/login_controller.dart';
 import '../features/auth/signup/signup_page.dart';
@@ -23,6 +24,10 @@ import '../features/profile/my_profile_page.dart';
 import '../features/profile/edit_profile_page.dart';
 import '../features/auth/forgot_password/change_password_page.dart';
 import '../features/auth/forgot_password/change_password_controller.dart';
+import '../features/premium_plans/premium_plans_page.dart';
+import '../features/premium_plans/premium_plans_controller.dart';
+import '../features/legal/terms_and_conditions_page.dart';
+import '../features/legal/privacy_policy_page.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -46,7 +51,12 @@ class AppRouter {
       GoRoute(
         path: Routes.HOME,
         builder: (context, state) {
+          final isPro = state.extra as bool? ?? true;
           HomeBinding().dependencies();
+          // Inject isPro into the controller if it's already registered via HomeBinding
+          if (Get.isRegistered<HomeController>()) {
+            Get.find<HomeController>().isPro.value = isPro;
+          }
           return const HomePage();
         },
       ),
@@ -107,6 +117,21 @@ class AppRouter {
           Get.lazyPut(() => ChangePasswordController());
           return const ChangePasswordPage();
         },
+      ),
+      GoRoute(
+        path: Routes.PREMIUM_PLANS,
+        builder: (context, state) {
+          Get.lazyPut(() => PremiumPlansController());
+          return const PremiumPlansPage();
+        },
+      ),
+      GoRoute(
+        path: Routes.TERMS,
+        builder: (context, state) => const TermsAndConditionsPage(),
+      ),
+      GoRoute(
+        path: Routes.PRIVACY,
+        builder: (context, state) => const PrivacyPolicyPage(),
       ),
     ],
   );
