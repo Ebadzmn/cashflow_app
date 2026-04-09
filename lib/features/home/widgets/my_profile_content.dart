@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../../routes/app_routes.dart';
 import '../home_controller.dart';
+import '../../auth/auth_controller.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class MyProfileContent extends GetView<HomeController> {
@@ -121,6 +122,18 @@ class MyProfileContent extends GetView<HomeController> {
                           text: 'Edit',
                           onPressed: () => context.push(Routes.EDIT_PROFILE),
                           borderRadius: 12,
+                        ),
+                        const SizedBox(height: 12),
+                        // Logout Button
+                        PrimaryButton(
+                          text: 'Logout',
+                          onPressed: () => Get.find<AuthController>().confirmLogout(),
+                          borderRadius: 12,
+                          gradientColors: [
+                            const Color(0xFFFF5252).withOpacity(0.3),
+                            const Color(0xFFFF5252).withOpacity(0.1),
+                          ],
+                          isGlass: true,
                         ),
                         const SizedBox(height: 20),
                       ],

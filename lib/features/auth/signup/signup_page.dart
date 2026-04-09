@@ -89,8 +89,26 @@ class SignupPage extends GetView<SignupController> {
                               ),
                               const SizedBox(height: 8),
                               GlassTextField(
-                                controller: controller.fullNameController,
+                                controller: controller.nameController,
                                 hintText: 'Enter your full name',
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Contact Number
+                              const Text(
+                                'Contact Number',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              GlassTextField(
+                                controller: controller.contactController,
+                                hintText: 'Enter your contact number',
+                                keyboardType: TextInputType.phone,
                               ),
 
                               const SizedBox(height: 16),
@@ -108,6 +126,7 @@ class SignupPage extends GetView<SignupController> {
                               GlassTextField(
                                 controller: controller.emailController,
                                 hintText: 'Enter your email',
+                                keyboardType: TextInputType.emailAddress,
                               ),
 
                               const SizedBox(height: 16),
@@ -226,9 +245,12 @@ class SignupPage extends GetView<SignupController> {
                               const SizedBox(height: 32),
 
                               // Sign Up Button
-                              PrimaryButton(
-                                text: 'Sign Up',
-                                onPressed: () => context.push(Routes.OTP),
+                              Obx(
+                                () => PrimaryButton(
+                                  text: 'Sign Up',
+                                  isLoading: controller.isLoading.value,
+                                  onPressed: controller.signUp,
+                                ),
                               ),
 
                               const SizedBox(height: 24),

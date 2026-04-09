@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double? width;
   final double height;
   final double borderRadius;
@@ -11,10 +11,12 @@ class PrimaryButton extends StatelessWidget {
   final Alignment gradientCenter;
   final double gradientRadius;
   final bool isGlass;
+  final Widget? child;
+  final bool isLoading;
 
   const PrimaryButton({
     super.key,
-    required this.text,
+    this.text = '',
     required this.onPressed,
     this.width = double.infinity,
     this.height = 56,
@@ -24,6 +26,8 @@ class PrimaryButton extends StatelessWidget {
     this.gradientCenter = Alignment.topCenter,
     this.gradientRadius = 1.5,
     this.isGlass = false,
+    this.child,
+    this.isLoading = false,
   });
 
   @override
@@ -58,7 +62,7 @@ class PrimaryButton extends StatelessWidget {
         ),
       ),
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -67,14 +71,25 @@ class PrimaryButton extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: fontSize,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        child: isLoading
+            ? (child ??
+                const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                ))
+            : (child ??
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w600,
+                  ),
+                )),
       ),
     );
   }

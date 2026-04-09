@@ -184,16 +184,12 @@ class LoginPage extends GetView<LoginController> {
                               const SizedBox(height: 32),
 
                               // Login Button
-                              PrimaryButton(
-                                text: 'Log in',
-                                onPressed: () {
-                                  final isPro =
-                                      controller.emailController.text
-                                          .trim()
-                                          .toLowerCase() ==
-                                      'pro@gmail.com';
-                                  context.go(Routes.HOME, extra: isPro);
-                                },
+                              Obx(
+                                () => PrimaryButton(
+                                  text: 'Log in',
+                                  onPressed: controller.login,
+                                  isLoading: controller.isLoading.value,
+                                ),
                               ),
 
                               const SizedBox(height: 24),

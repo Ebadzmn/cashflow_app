@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
-import '../../routes/app_routes.dart';
+import '../auth/auth_controller.dart';
 import 'splash_controller.dart';
 
 class SplashPage extends StatefulWidget {
@@ -17,11 +16,9 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        context.go(Routes.ONBOARDING);
-      }
-    });
+    // Use the AuthController to check where to go on app start.
+    // This centrally manages the splash screen delay and logic.
+    Get.find<AuthController>().checkAuthStatus();
   }
 
   @override

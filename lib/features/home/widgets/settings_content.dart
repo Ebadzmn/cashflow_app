@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../../routes/app_routes.dart';
 import '../home_controller.dart';
+import '../../auth/auth_controller.dart';
 
 class SettingsContent extends GetView<HomeController> {
   const SettingsContent({super.key});
@@ -198,13 +199,7 @@ class SettingsContent extends GetView<HomeController> {
 
   Widget _buildLogoutItem(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Reset the tabs to Home (index 0) so the next login starts fresh.
-        if (Get.isRegistered<HomeController>()) {
-          Get.find<HomeController>().selectedIndex.value = 0;
-        }
-        context.go(Routes.LOGIN);
-      },
+      onTap: () => Get.find<AuthController>().confirmLogout(),
       child: Row(
         children: [
           const Icon(Icons.logout, color: Colors.redAccent, size: 28),

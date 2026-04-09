@@ -6,6 +6,7 @@ class GlassTextField extends StatelessWidget {
   final bool isPassword;
   final bool isPasswordVisible;
   final VoidCallback? onTogglePassword;
+  final TextInputType keyboardType;
 
   const GlassTextField({
     super.key,
@@ -14,6 +15,7 @@ class GlassTextField extends StatelessWidget {
     this.isPassword = false,
     this.isPasswordVisible = false,
     this.onTogglePassword,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -58,6 +60,7 @@ class GlassTextField extends StatelessWidget {
           child: TextField(
             controller: controller,
             obscureText: isPassword && !isPasswordVisible,
+            keyboardType: keyboardType,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: hintText,
