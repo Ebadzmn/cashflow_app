@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/secure_storage_service.dart';
+import '../profile/profile_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../routes/app_router.dart';
 import '../../core/network/api_client.dart';
 
 class AuthController extends GetxController {
   final SecureStorageService _storageService = SecureStorageService();
+  final ProfileController _profileController = Get.find<ProfileController>();
 
   @override
   void onInit() {
@@ -19,8 +21,11 @@ class AuthController extends GetxController {
     await Future.delayed(const Duration(seconds: 2));
 
     final hasToken = await _storageService.hasTokens();
-    
+
     if (hasToken) {
+      try {
+        await _profileController.fetchProfile(showLoading: false);
+      } catch (_) {}
       AppRouter.router.go(Routes.HOME);
     } else {
       AppRouter.router.go(Routes.LOGIN);
@@ -44,7 +49,10 @@ class AuthController extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white38)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white38),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -53,7 +61,10 @@ class AuthController extends GetxController {
             },
             child: const Text(
               'Logout',
-              style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -65,13 +76,16 @@ class AuthController extends GetxController {
     try {
       // 1. Clear singleton memory (removes header from current Dio instance)
       ApiClient.instance.clearToken();
-      
+
       // 2. Clear secure storage
       await _storageService.clearTokens();
-      
-      // 3. Navigate to Login
+
+      // 3. Clear profile cache
+      await _profileController.clearProfile();
+
+      // 4. Navigate to Login
       AppRouter.router.go(Routes.LOGIN);
-      
+
       Get.snackbar(
         'Success',
         'Logged out successfully',

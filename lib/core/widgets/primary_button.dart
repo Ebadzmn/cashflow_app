@@ -50,10 +50,7 @@ class PrimaryButton extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
         border: isGlass
-            ? Border.all(
-                color: Colors.white.withOpacity(0.4),
-                width: 1,
-              )
+            ? Border.all(color: Colors.white.withOpacity(0.4), width: 1)
             : null,
         gradient: RadialGradient(
           center: gradientCenter,
@@ -73,23 +70,37 @@ class PrimaryButton extends StatelessWidget {
         ),
         child: isLoading
             ? (child ??
-                const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                ))
+                  const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        'Loading...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ))
             : (child ??
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )),
+                  Text(
+                    text,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )),
       ),
     );
   }

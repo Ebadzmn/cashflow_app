@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import '../home_controller.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../profile/profile_controller.dart';
 
-class EditProfileContent extends GetView<HomeController> {
+class EditProfileContent extends GetView<ProfileController> {
   const EditProfileContent({super.key});
 
   @override
@@ -63,57 +63,96 @@ class EditProfileContent extends GetView<HomeController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Profile Image with Camera Icon
-                        Center(
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 120,
-                                height: 120,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: const DecorationImage(
-                                    image: NetworkImage(
-                                      'https://i.pravatar.cc/150?u=brain',
-                                    ),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  border: Border.all(
-                                    color: Colors.white24,
-                                    width: 4,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
+                        Obx(() {
+                          final imageUrl = controller.profileImageUrl;
+
+                          return Center(
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 120,
+                                  height: 120,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF0D1A2A),
                                     shape: BoxShape.circle,
+                                    image: imageUrl != null
+                                        ? DecorationImage(
+                                            image: NetworkImage(imageUrl),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/profile_placeholder.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
                                     border: Border.all(
                                       color: Colors.white24,
-                                      width: 2,
+                                      width: 4,
                                     ),
                                   ),
-                                  child: const Icon(
-                                    Icons.camera_alt_outlined,
-                                    color: Colors.white,
-                                    size: 20,
+                                  child: imageUrl == null
+                                      ? const Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                          size: 48,
+                                        )
+                                      : null,
+                                ),
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D1A2A),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white24,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
+                              ],
+                            ),
+                          );
+                        }),
                         const SizedBox(height: 20),
                         // Input Fields
-                        _buildTextField('Full Name', 'Brain'),
+                        Obx(
+                          () => _buildTextField(
+                            'Full Name',
+                            controller.userProfile.value?.name.isNotEmpty ==
+                                    true
+                                ? controller.userProfile.value!.name
+                                : 'Not available',
+                          ),
+                        ),
                         const SizedBox(height: 10),
-                        _buildTextField('Email', 'example@gmail.com'),
+                        Obx(
+                          () => _buildTextField(
+                            'Email',
+                            controller.userProfile.value?.email.isNotEmpty ==
+                                    true
+                                ? controller.userProfile.value!.email
+                                : 'Not available',
+                          ),
+                        ),
                         const SizedBox(height: 10),
-                        _buildTextField('Phone Number', '+123456789'),
+                        Obx(
+                          () => _buildTextField(
+                            'Phone Number',
+                            controller.userProfile.value?.contact?.isNotEmpty ==
+                                    true
+                                ? controller.userProfile.value!.contact!
+                                : 'Not available',
+                          ),
+                        ),
                         const Spacer(),
                         // Save Button
                         PrimaryButton(

@@ -12,6 +12,8 @@ import '../features/auth/login/login_page.dart';
 import '../features/auth/login/login_controller.dart';
 import '../features/auth/signup/signup_page.dart';
 import '../features/auth/signup/signup_controller.dart';
+import '../features/auth/verify_email/verify_email_page.dart';
+import '../features/auth/verify_email/verify_email_controller.dart';
 import '../features/auth/otp/otp_page.dart';
 import '../features/auth/otp/otp_controller.dart';
 import '../features/auth/forgot_password/forgot_password_page.dart';
@@ -72,6 +74,14 @@ class AppRouter {
         builder: (context, state) {
           Get.lazyPut(() => SignupController());
           return const SignupPage();
+        },
+      ),
+      GoRoute(
+        path: Routes.VERIFY_EMAIL,
+        builder: (context, state) {
+          final email = state.extra as String? ?? '';
+          Get.lazyPut(() => VerifyEmailController(email: email));
+          return const VerifyEmailPage();
         },
       ),
       GoRoute(

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class HomeHeader extends StatelessWidget {
+import '../../profile/profile_controller.dart';
+
+class HomeHeader extends GetView<ProfileController> {
   const HomeHeader({super.key});
 
   @override
@@ -10,47 +13,63 @@ class HomeHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                  image: const DecorationImage(
-                    // Using a placeholder image or asset if available.
-                    // Ideally, this should be from the user's profile.
-                    image: AssetImage('assets/images/profile_placeholder.png'), 
-                    fit: BoxFit.cover,
+          Obx(() {
+            final profile = controller.userProfile.value;
+            final imageUrl = controller.profileImageUrl;
+
+            return Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                    image: imageUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                            onError: (_, __) {},
+                          )
+                        : const DecorationImage(
+                            image: AssetImage(
+                              'assets/images/profile_placeholder.png',
+                            ),
+                            fit: BoxFit.cover,
+                          ),
                   ),
+                  child: imageUrl == null
+                      ? const Icon(Icons.person, color: Colors.white)
+                      : null,
                 ),
-                // Fallback if image not found
-                child: const Icon(Icons.person, color: Colors.white), 
-              ),
-              const SizedBox(width: 12),
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Hello',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Brian green',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                    Text(
+                      controller.isLoading.value
+                          ? 'Fetching profile...'
+                          : (profile?.name.isNotEmpty == true
+                                ? profile!.name
+                                : 'User'),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
+              ],
+            );
+          }),
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(

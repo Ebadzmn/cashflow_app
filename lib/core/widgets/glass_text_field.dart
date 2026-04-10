@@ -7,6 +7,8 @@ class GlassTextField extends StatelessWidget {
   final bool isPasswordVisible;
   final VoidCallback? onTogglePassword;
   final TextInputType keyboardType;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const GlassTextField({
     super.key,
@@ -16,6 +18,8 @@ class GlassTextField extends StatelessWidget {
     this.isPasswordVisible = false,
     this.onTogglePassword,
     this.keyboardType = TextInputType.text,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -51,16 +55,18 @@ class GlassTextField extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withOpacity(0.1),
-                Colors.transparent,
-              ],
+              colors: [Colors.white.withOpacity(0.1), Colors.transparent],
             ),
           ),
           child: TextField(
             controller: controller,
             obscureText: isPassword && !isPasswordVisible,
             keyboardType: keyboardType,
+            readOnly: readOnly,
+            onTap: onTap,
+            showCursor: !readOnly,
+            textAlign: TextAlign.start,
+            textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: hintText,
@@ -80,7 +86,9 @@ class GlassTextField extends StatelessWidget {
               suffixIcon: isPassword
                   ? IconButton(
                       icon: Icon(
-                        isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                        isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
                         color: Colors.white.withOpacity(0.7),
                       ),
                       onPressed: onTogglePassword,

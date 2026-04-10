@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/auth_repository.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../routes/app_router.dart';
 import '../../../routes/app_routes.dart';
 
 class SignupController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
-  final StorageService _storageService = Get.find<StorageService>();
 
   final nameController = TextEditingController(); // Replaced fullNameController
   final contactController = TextEditingController(); // Added
@@ -55,19 +53,20 @@ class SignupController extends GetxController {
         'password': passwordController.text.trim(),
       });
 
-      if (response.success && response.data != null) {
-        await _saveUser(response.data!);
-        
+      if (response.success) {
         Get.snackbar(
           'Success',
-          'Account created successfully 🎉',
+          'Account created successfully. Please verify your email.',
           backgroundColor: Colors.green,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
 
-        // Navigate to Login screen directly (OTP bypassed)
-        AppRouter.router.go(Routes.LOGIN);
+        final emailToVerify = response.data?.email.isNotEmpty == true
+            ? response.data!.email
+            : emailController.text.trim();
+
+        AppRouter.router.push(Routes.VERIFY_EMAIL, extra: emailToVerify);
       } else {
         Get.snackbar(
           'Error',
@@ -132,18 +131,6 @@ class SignupController extends GetxController {
       backgroundColor: Colors.redAccent,
       colorText: Colors.white,
       snackPosition: SnackPosition.BOTTOM,
-    );
-  }
-
-  Future<void> _saveUser(dynamic data) async {
-    await _storageService.saveUserData(
-      userId: data.id,
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      image: data.image,
-      plan: data.plan,
-      verified: data.verified,
     );
   }
 }

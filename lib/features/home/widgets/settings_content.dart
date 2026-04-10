@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../routes/app_routes.dart';
 import '../home_controller.dart';
 import '../../auth/auth_controller.dart';
+import '../../profile/profile_controller.dart';
 
 class SettingsContent extends GetView<HomeController> {
   const SettingsContent({super.key});
@@ -64,47 +65,65 @@ class SettingsContent extends GetView<HomeController> {
                     child: Column(
                       children: [
                         // Profile Section
-                        Row(
-                          children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: const DecorationImage(
-                                  image: NetworkImage(
-                                    'https://i.pravatar.cc/150?u=brain',
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
-                                border: Border.all(
-                                  color: Colors.white24,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                        GetX<ProfileController>(
+                          builder: (profileController) {
+                            final profile = profileController.userProfile.value;
+                            final imageUrl = profileController.profileImageUrl;
+
+                            return Row(
                               children: [
-                                Text(
-                                  'Brain',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: imageUrl != null
+                                        ? DecorationImage(
+                                            image: NetworkImage(imageUrl),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : const DecorationImage(
+                                            image: AssetImage(
+                                              'assets/images/profile_placeholder.png',
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                    border: Border.all(
+                                      color: Colors.white24,
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
-                                Text(
-                                  'example@gmail.com',
-                                  style: GoogleFonts.outfit(
-                                    color: Colors.white70,
-                                    fontSize: 14,
-                                  ),
+                                const SizedBox(width: 16),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      profileController.isLoading.value
+                                          ? 'Fetching profile...'
+                                          : (profile?.name.isNotEmpty == true
+                                                ? profile!.name
+                                                : 'User'),
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      profile?.email.isNotEmpty == true
+                                          ? profile!.email
+                                          : 'No email available',
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                         const SizedBox(height: 50),
                         // Settings Items
