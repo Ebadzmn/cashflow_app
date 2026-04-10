@@ -4,6 +4,10 @@ class TransactionModel {
   final String amount;
   final bool isIncome;
   final String trailingText;
+  final String category;
+  final DateTime? date;
+  final String description;
+  final String? fileUrl;
 
   const TransactionModel({
     required this.title,
@@ -11,5 +15,9 @@ class TransactionModel {
     required this.amount,
     required this.isIncome,
     required this.trailingText,
+    this.category = '',
+    this.date,
+    this.description = '',
+    this.fileUrl,
   });
 }

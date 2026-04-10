@@ -70,10 +70,24 @@ class TransactionContent extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Transaction List
           Expanded(
-            child: Obx(
-              () => ListView.builder(
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF56CCF2)),
+                );
+              }
+
+              if (controller.filteredTransactions.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No data available',
+                    style: TextStyle(color: Colors.white54, fontSize: 14),
+                  ),
+                );
+              }
+
+              return ListView.builder(
                 padding: const EdgeInsets.only(
                   bottom: 100,
                   left: 10,
@@ -90,8 +104,8 @@ class TransactionContent extends StatelessWidget {
                     trailingText: transaction.trailingText,
                   );
                 },
-              ),
-            ),
+              );
+            }),
           ),
         ],
       ),

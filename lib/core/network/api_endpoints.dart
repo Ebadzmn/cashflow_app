@@ -5,6 +5,8 @@ class ApiEndpoints {
   static const String profile = '/user/profile';
   static const String income = '/income';
   static const String expense = '/expense';
+  static const String incomeHistory = '/income/history';
+  static const String expenseHistory = '/expense/history';
   static const String bankTransaction = '/bank-transaction';
   static const String verifyEmail = '/auth/verify-email';
   static const String refreshToken = '/auth/refresh';

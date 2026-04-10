@@ -44,32 +44,40 @@ class HomePage extends GetView<HomeController> {
       case 0:
         return SafeArea(
           bottom: false,
-          child: ListView(
-            padding: const EdgeInsets.only(bottom: 100), // Space for bottom nav
-            children: [
-              const HomeHeader(),
-              Obx(
-                () => BlurredCardOverlay(
-                  isPro: controller.isPro.value,
-                  child: const BalanceChartCard(),
-                ),
-              ),
-              Obx(
-                () => BlurredCardOverlay(
-                  isPro: controller.isPro.value,
-                  child: GestureDetector(
-                    onTap: () {
-                      if (controller.isPro.value) {
-                        context.push(Routes.AUDIT_READINESS);
-                      }
-                    },
-                    child: const AuditRiskCard(),
+          child: RefreshIndicator(
+            onRefresh: controller.fetchBalanceChartData,
+            color: const Color(0xFF56CCF2),
+            backgroundColor: const Color(0xFF16253A),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(
+                bottom: 100,
+              ), // Space for bottom nav
+              children: [
+                const HomeHeader(),
+                Obx(
+                  () => BlurredCardOverlay(
+                    isPro: controller.isPro.value,
+                    child: const BalanceChartCard(),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              _buildActionList(context),
-            ],
+                Obx(
+                  () => BlurredCardOverlay(
+                    isPro: controller.isPro.value,
+                    child: GestureDetector(
+                      onTap: () {
+                        if (controller.isPro.value) {
+                          context.push(Routes.AUDIT_READINESS);
+                        }
+                      },
+                      child: const AuditRiskCard(),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildActionList(context),
+              ],
+            ),
           ),
         );
       case 1:

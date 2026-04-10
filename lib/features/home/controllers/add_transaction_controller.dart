@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,8 @@ import 'package:intl/intl.dart';
 
 import '../../../core/network/network_exception.dart';
 import '../../../data/repositories/income_repository.dart';
+import '../home_controller.dart';
+import 'stats_controller.dart';
 
 class IncomeSubmitResult {
   final bool success;
@@ -275,6 +278,14 @@ class AddTransactionController extends GetxController {
 
       final message = (response['message'] as String?)?.trim();
       clearForm();
+
+      if (Get.isRegistered<HomeController>()) {
+        unawaited(Get.find<HomeController>().fetchBalanceChartData());
+      }
+
+      if (selectedType.value == 1 && Get.isRegistered<StatsController>()) {
+        unawaited(Get.find<StatsController>().fetchExpenseReport());
+      }
 
       return IncomeSubmitResult(
         success: true,
