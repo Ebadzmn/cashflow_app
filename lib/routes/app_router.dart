@@ -29,7 +29,11 @@ import '../features/auth/forgot_password/change_password_controller.dart';
 import '../features/premium_plans/premium_plans_page.dart';
 import '../features/premium_plans/premium_plans_controller.dart';
 import '../features/legal/terms_and_conditions_page.dart';
+import '../features/legal/terms_and_conditions_details_page.dart';
+import '../features/legal/terms_and_conditions_controller.dart';
 import '../features/legal/privacy_policy_page.dart';
+import '../features/legal/privacy_policy_details_page.dart';
+import '../features/legal/privacy_policy_controller.dart';
 
 class AppRouter {
   static final router = GoRouter(
@@ -137,11 +141,43 @@ class AppRouter {
       ),
       GoRoute(
         path: Routes.TERMS,
-        builder: (context, state) => const TermsAndConditionsPage(),
+        builder: (context, state) {
+          if (!Get.isRegistered<TermsAndConditionsController>()) {
+            Get.put(TermsAndConditionsController(), permanent: true);
+          }
+          return const TermsAndConditionsPage();
+        },
+      ),
+      GoRoute(
+        path: Routes.TERMS_DETAILS,
+        builder: (context, state) {
+          if (!Get.isRegistered<TermsAndConditionsController>()) {
+            Get.put(TermsAndConditionsController(), permanent: true);
+          }
+
+          final id = state.pathParameters['id'] ?? '';
+          return TermsAndConditionsDetailsPage(termId: id);
+        },
       ),
       GoRoute(
         path: Routes.PRIVACY,
-        builder: (context, state) => const PrivacyPolicyPage(),
+        builder: (context, state) {
+          if (!Get.isRegistered<PrivacyPolicyController>()) {
+            Get.put(PrivacyPolicyController(), permanent: true);
+          }
+          return const PrivacyPolicyPage();
+        },
+      ),
+      GoRoute(
+        path: Routes.PRIVACY_DETAILS,
+        builder: (context, state) {
+          if (!Get.isRegistered<PrivacyPolicyController>()) {
+            Get.put(PrivacyPolicyController(), permanent: true);
+          }
+
+          final id = state.pathParameters['id'] ?? '';
+          return PrivacyPolicyDetailsPage(privacyId: id);
+        },
       ),
     ],
   );

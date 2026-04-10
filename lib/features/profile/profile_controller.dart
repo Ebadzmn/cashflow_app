@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'dart:io';
 
 import '../../core/network/api_endpoints.dart';
 import '../../core/network/network_exception.dart';
@@ -8,9 +12,88 @@ import '../../data/repositories/auth_repository.dart';
 
 class ProfileController extends GetxService {
   final AuthRepository _authRepository = AuthRepository();
+  final ImagePicker _imagePicker = ImagePicker();
 
   final Rxn<ProfileData> userProfile = Rxn<ProfileData>();
   final RxBool isLoading = false.obs;
+  final TextEditingController nameController = TextEditingController();
+  final Rxn<XFile> selectedImage = Rxn<XFile>();
+
+  Future<void> prepareEditProfile() async {
+    if (userProfile.value == null) {
+      try {
+        await fetchProfile(showLoading: false);
+      } catch (_) {
+        // Keep the editor usable even if the refresh fails.
+      }
+    }
+
+    nameController.text = userProfile.value?.name ?? '';
+    selectedImage.value = null;
+  }
+
+  Future<void> showImageSourceOptions(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: const Color(0xFF1F2937),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera, color: Colors.white),
+                title: const Text(
+                  'Take Photo',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_pickImage(ImageSource.camera));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.white),
+                title: const Text(
+                  'Choose from Gallery',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_pickImage(ImageSource.gallery));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        selectedImage.value = image;
+      }
+    } catch (error) {
+      Get.snackbar(
+        'Failed to pick image',
+        'Unable to access the image picker.',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Get.log('Profile image pick failed: $error');
+    }
+  }
 
   Future<void> fetchProfile({bool showLoading = true}) async {
     if (showLoading) {
@@ -21,6 +104,9 @@ class ProfileController extends GetxService {
       final response = await _authRepository.getProfile();
       if (response.success && response.data != null) {
         userProfile.value = response.data;
+        if (nameController.text.isEmpty) {
+          nameController.text = response.data!.name;
+        }
         return;
       }
 
@@ -60,8 +146,87 @@ class ProfileController extends GetxService {
     return '${ApiEndpoints.baseUrl}$image';
   }
 
+  String? get selectedImagePath => selectedImage.value?.path;
+
+  Future<bool> updateProfile() async {
+    final trimmedName = nameController.text.trim();
+    final image = selectedImage.value;
+
+    if (trimmedName.isEmpty && image == null) {
+      Get.snackbar(
+        'Validation error',
+        'Please enter a name or choose a new image.',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+
+    isLoading.value = true;
+
+    try {
+      final response = await _authRepository.updateProfile(
+        name: trimmedName,
+        image: image == null ? null : File(image.path),
+      );
+
+      if (!response.success) {
+        throw NetworkException(
+          message: response.message.isNotEmpty
+              ? response.message
+              : 'Failed to update profile',
+        );
+      }
+
+      await fetchProfile(showLoading: false);
+      nameController.text = userProfile.value?.name ?? trimmedName;
+      selectedImage.value = null;
+
+      Get.snackbar(
+        'Success',
+        response.message.isNotEmpty
+            ? response.message
+            : 'Profile updated successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return true;
+    } on NetworkException catch (e) {
+      Get.snackbar(
+        'Error',
+        e.message,
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } catch (error) {
+      Get.log('Profile update failed: $error');
+      Get.snackbar(
+        'Error',
+        'Failed to update profile',
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> clearProfile() async {
     userProfile.value = null;
     isLoading.value = false;
+    nameController.clear();
+    selectedImage.value = null;
+  }
+
+  @override
+  void onClose() {
+    nameController.dispose();
+    super.onClose();
   }
 }

@@ -7,6 +7,9 @@ class ApiEndpoints {
   static const String expense = '/expense';
   static const String incomeHistory = '/income/history';
   static const String expenseHistory = '/expense/history';
+  static const String ocrAnalyze = '/ocr/analyze';
+  static const String termsConditions = '/terms-and-conditions';
+  static const String privacyPolicy = '/privacy-policy';
   static const String bankTransaction = '/bank-transaction';
   static const String verifyEmail = '/auth/verify-email';
   static const String refreshToken = '/auth/refresh';

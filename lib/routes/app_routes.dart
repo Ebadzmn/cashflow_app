@@ -16,5 +16,7 @@ abstract class Routes {
   static const CHANGE_PASSWORD = '/change-password';
   static const PREMIUM_PLANS = '/premium-plans';
   static const TERMS = '/terms';
+  static const TERMS_DETAILS = '/terms/:id';
   static const PRIVACY = '/privacy';
+  static const PRIVACY_DETAILS = '/privacy-policy/:id';
 }

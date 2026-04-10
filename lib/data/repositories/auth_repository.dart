@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../models/profile_response.dart';
@@ -25,6 +27,26 @@ class AuthRepository {
 
   Future<ProfileResponse> getProfile() async {
     final response = await _apiClient.get(ApiEndpoints.profile);
+
+    return ProfileResponse.fromJson(response.data);
+  }
+
+  Future<ProfileResponse> updateProfile({
+    required String name,
+    File? image,
+  }) async {
+    final fields = <String, dynamic>{};
+    final trimmedName = name.trim();
+
+    if (trimmedName.isNotEmpty) {
+      fields['name'] = trimmedName;
+    }
+
+    final response = await _apiClient.patchMultipart(
+      ApiEndpoints.profile,
+      fields: fields.isEmpty ? null : fields,
+      files: image == null ? null : {'image': image},
+    );
 
     return ProfileResponse.fromJson(response.data);
   }

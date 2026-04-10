@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../core/widgets/primary_button.dart';
+import '../home_controller.dart';
 import '../controllers/stats_controller.dart';
 
 class StatsContent extends StatelessWidget {
@@ -23,7 +24,16 @@ class StatsContent extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (Get.isRegistered<HomeController>()) {
+                      Get.find<HomeController>().changeTabIndex(0);
+                      return;
+                    }
+
+                    if (Get.key.currentState?.canPop() ?? false) {
+                      Get.back();
+                    }
+                  },
                   icon: const Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
