@@ -69,6 +69,7 @@ class AddTransactionModal extends StatelessWidget {
               Obx(() {
                 if (controller.selectedType.value == 2) {
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Bank Name',
@@ -118,6 +119,7 @@ class AddTransactionModal extends StatelessWidget {
                 }
 
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
                       'Category',
