@@ -109,6 +109,19 @@ class ApiClient {
     }
   }
 
+  /// Download a file to disk.
+  Future<void> download(
+    String url,
+    String savePath, {
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      await _dio.download(url, savePath, onReceiveProgress: onReceiveProgress);
+    } on DioException catch (e) {
+      throw NetworkException.fromDioError(e);
+    }
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // MULTIPART / FILE UPLOAD
   // ══════════════════════════════════════════════════════════════════════════
@@ -223,12 +236,14 @@ Dio buildDio() {
   dio.interceptors.add(AuthInterceptor(storageService));
 
   // Add LogInterceptor for debugging in dev
-  dio.interceptors.add(LogInterceptor(
-    requestHeader: true,
-    requestBody: true,
-    responseHeader: true,
-    responseBody: true,
-  ));
+  dio.interceptors.add(
+    LogInterceptor(
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+    ),
+  );
 
   return dio;
 }

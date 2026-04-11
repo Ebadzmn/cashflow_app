@@ -21,19 +21,26 @@ class AuditReadinessPage extends StatelessWidget {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 12.0,
+                  ),
                   child: Row(
                     children: [
                       IconButton(
                         onPressed: () => context.pop(),
-                        icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       const Expanded(
                         child: Text(
@@ -50,7 +57,7 @@ class AuditReadinessPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24.0),
@@ -88,15 +95,22 @@ class AuditReadinessPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        
+
                         // Status Card
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 40,
+                            horizontal: 24,
+                          ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1F2937).withValues(alpha: 0.6), // Semi-transparent dark bg
+                            color: const Color(0xFF1F2937).withValues(
+                              alpha: 0.6,
+                            ), // Semi-transparent dark bg
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
                           ),
                           child: Column(
                             children: [
@@ -108,20 +122,23 @@ class AuditReadinessPage extends StatelessWidget {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF00C853).withValues(alpha: 0.2),
+                                      color: const Color(
+                                        0xFF00C853,
+                                      ).withValues(alpha: 0.2),
                                       blurRadius: 20,
                                       spreadRadius: 5,
                                     ),
                                   ],
                                 ),
                                 child: const Icon(
-                                  Icons.verified_user_outlined, // Shield check icon
+                                  Icons
+                                      .verified_user_outlined, // Shield check icon
                                   color: Color(0xFF00E676), // Bright Green
                                   size: 64,
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              
+
                               const Text(
                                 "You're Protected",
                                 style: TextStyle(
@@ -131,19 +148,30 @@ class AuditReadinessPage extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              
+
                               // Active Coverage Badge
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF1F2937),
                                   borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: const Color(0xFF00E676).withValues(alpha: 0.3)),
+                                  border: Border.all(
+                                    color: const Color(
+                                      0xFF00E676,
+                                    ).withValues(alpha: 0.3),
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: const [
-                                    Icon(Icons.check_circle, color: Color(0xFF00E676), size: 16),
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Color(0xFF00E676),
+                                      size: 16,
+                                    ),
                                     SizedBox(width: 8),
                                     Text(
                                       'Active Coverage',
@@ -159,21 +187,24 @@ class AuditReadinessPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(height: 24),
-                        
+
                         // Action Items
                         _buildActionItem(
                           icon: Icons.description_outlined,
                           title: 'IRS Notice Download',
-                          showArrow: false,
+                          showArrow: true,
+                          onTap: () => context.push(Routes.NOTICES),
                         ),
                         const SizedBox(height: 16),
                         _buildActionItem(
                           icon: Icons.add,
                           title: 'Case Status',
                           iconColor: Colors.white,
-                          iconBgColor: const Color(0xFF2196F3), // Blue bg for plus icon
+                          iconBgColor: const Color(
+                            0xFF2196F3,
+                          ), // Blue bg for plus icon
                           showArrow: false,
                           isGlow: true,
                         ),
@@ -251,7 +282,11 @@ class AuditReadinessPage extends StatelessWidget {
               ),
             ),
             if (showArrow)
-              const Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white54,
+                size: 16,
+              ),
           ],
         ),
       ),

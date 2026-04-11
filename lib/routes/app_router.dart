@@ -21,6 +21,8 @@ import '../features/auth/forgot_password/forgot_password_controller.dart';
 import '../features/scan_receipt/scan_receipt_page.dart';
 import '../features/audit_readiness/audit_readiness_page.dart';
 import '../features/audit_readiness/expert_support_page.dart';
+import '../features/notices/notice_binding.dart';
+import '../features/notices/notice_page.dart';
 import '../features/scan_receipt/scan_receipt_controller.dart';
 import '../features/profile/my_profile_page.dart';
 import '../features/profile/edit_profile_page.dart';
@@ -112,6 +114,13 @@ class AppRouter {
       GoRoute(
         path: Routes.AUDIT_READINESS,
         builder: (context, state) => const AuditReadinessPage(),
+      ),
+      GoRoute(
+        path: Routes.NOTICES,
+        builder: (context, state) {
+          NoticeBinding().dependencies();
+          return const NoticePage();
+        },
       ),
       GoRoute(
         path: Routes.EXPERT_SUPPORT,

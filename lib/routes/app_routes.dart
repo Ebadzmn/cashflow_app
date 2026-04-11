@@ -10,6 +10,7 @@ abstract class Routes {
   static const ADD_TRANSACTION = '/add-transaction';
   static const SCAN_RECEIPT = '/scan-receipt';
   static const AUDIT_READINESS = '/audit-readiness';
+  static const NOTICES = '/notices';
   static const EXPERT_SUPPORT = '/expert-support';
   static const MY_PROFILE = '/my-profile';
   static const EDIT_PROFILE = '/edit-profile';

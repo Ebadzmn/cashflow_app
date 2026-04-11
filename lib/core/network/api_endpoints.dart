@@ -11,6 +11,7 @@ class ApiEndpoints {
   static const String termsConditions = '/terms-and-conditions';
   static const String privacyPolicy = '/privacy-policy';
   static const String bankTransaction = '/bank-transaction';
+  static const String notices = '/notices';
   static const String verifyEmail = '/auth/verify-email';
   static const String refreshToken = '/auth/refresh';
 }
