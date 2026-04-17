@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../../data/repositories/income_repository.dart';
+import 'controllers/audit_risk_controller.dart';
 import 'widgets/add_transaction_modal.dart';
 
 class HomeController extends GetxController {
@@ -59,6 +60,14 @@ class HomeController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> refreshDashboard() async {
+    await Future.wait([
+      fetchBalanceChartData(),
+      if (Get.isRegistered<AuditRiskController>())
+        Get.find<AuditRiskController>().fetchAuditRisk(),
+    ]);
   }
 
   List<Map<String, dynamic>> _buildLatestYearMonthlyTotals(

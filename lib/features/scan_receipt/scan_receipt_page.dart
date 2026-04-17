@@ -200,10 +200,14 @@ class ScanReceiptPage extends GetView<ScanReceiptController> {
                                     width: double.infinity,
                                     padding: const EdgeInsets.all(18),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.08),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.10),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.10,
+                                        ),
                                       ),
                                     ),
                                     child: const Text(
@@ -219,10 +223,14 @@ class ScanReceiptPage extends GetView<ScanReceiptController> {
                                     width: double.infinity,
                                     padding: const EdgeInsets.all(18),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.08),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.08,
+                                      ),
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.10),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.10,
+                                        ),
                                       ),
                                     ),
                                     child: Column(
@@ -246,7 +254,8 @@ class ScanReceiptPage extends GetView<ScanReceiptController> {
                                         const SizedBox(height: 10),
                                         _buildResultRow(
                                           label: 'Category',
-                                          value: controller.ocrResult['category']
+                                          value: controller
+                                              .ocrResult['category']
                                               ?.toString(),
                                         ),
                                       ],
@@ -273,15 +282,45 @@ class ScanReceiptPage extends GetView<ScanReceiptController> {
                             Expanded(
                               child: Obx(
                                 () => PrimaryButton(
-                                  text: 'Save',
-                                  isLoading: controller.isLoading.value,
-                                  onPressed: controller.isLoading.value
+                                  text: controller.ocrResult.isEmpty
+                                      ? 'Scan'
+                                      : 'Save Expense',
+                                  isLoading:
+                                      controller.isLoading.value ||
+                                      controller.isSaving.value,
+                                  onPressed:
+                                      controller.isLoading.value ||
+                                          controller.isSaving.value
                                       ? null
                                       : () async {
                                           if (controller.ocrResult.isNotEmpty) {
-                                            Get.back(
-                                              result: controller.ocrResult,
+                                            final result = await controller
+                                                .saveReceiptAsExpense();
+                                            if (!context.mounted) {
+                                              return;
+                                            }
+
+                                            Get.snackbar(
+                                              result.success
+                                                  ? 'Success'
+                                                  : 'Error',
+                                              result.message,
+                                              backgroundColor: result.success
+                                                  ? Colors.green
+                                                  : Colors.redAccent,
+                                              colorText: Colors.white,
+                                              snackPosition:
+                                                  SnackPosition.BOTTOM,
                                             );
+
+                                            if (result.success) {
+                                              await Future.delayed(
+                                                const Duration(
+                                                  milliseconds: 700,
+                                                ),
+                                              );
+                                              Get.back();
+                                            }
                                             return;
                                           }
 

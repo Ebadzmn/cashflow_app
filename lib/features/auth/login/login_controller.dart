@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../../core/services/secure_storage_service.dart';
+import '../../../core/services/chat_socket_service.dart';
 import '../../profile/profile_controller.dart';
 import '../../../routes/app_routes.dart';
 import '../../../routes/app_router.dart';
@@ -61,6 +62,10 @@ class LoginController extends GetxController {
         try {
           await _profileController.fetchProfile(showLoading: false);
         } catch (_) {}
+
+        if (Get.isRegistered<ChatSocketService>()) {
+          await Get.find<ChatSocketService>().connect();
+        }
 
         Get.snackbar(
           'Success',

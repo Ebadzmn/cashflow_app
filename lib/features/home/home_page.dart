@@ -45,7 +45,7 @@ class HomePage extends GetView<HomeController> {
         return SafeArea(
           bottom: false,
           child: RefreshIndicator(
-            onRefresh: controller.fetchBalanceChartData,
+            onRefresh: controller.refreshDashboard,
             color: const Color(0xFF56CCF2),
             backgroundColor: const Color(0xFF16253A),
             child: ListView(

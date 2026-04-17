@@ -8,13 +8,26 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/api_endpoints.dart';
 import '../../core/network/network_exception.dart';
+import '../../data/repositories/income_repository.dart';
+import '../home/controllers/stats_controller.dart';
+import '../home/controllers/transaction_controller.dart';
+import '../home/home_controller.dart';
+
+class ReceiptSaveResult {
+  final bool success;
+  final String message;
+
+  const ReceiptSaveResult({required this.success, required this.message});
+}
 
 class ScanReceiptController extends GetxController {
   final ApiClient _apiClient = ApiClient.instance;
+  final IncomeRepository _incomeRepository = IncomeRepository();
   final ImagePicker _imagePicker = ImagePicker();
 
   final selectedImage = Rxn<XFile>();
   final isLoading = false.obs;
+  final isSaving = false.obs;
   final ocrResult = <String, dynamic>{}.obs;
 
   Future<void> showImageSourceOptions(BuildContext context) async {
@@ -142,6 +155,76 @@ class ScanReceiptController extends GetxController {
     }
   }
 
+  Future<ReceiptSaveResult> saveReceiptAsExpense() async {
+    final image = selectedImage.value;
+    final amountText = _readText(ocrResult['amount']);
+    final category = _readText(ocrResult['category']);
+    final amountValue = num.tryParse(amountText);
+
+    if (image == null) {
+      return const ReceiptSaveResult(
+        success: false,
+        message: 'Please scan a receipt first.',
+      );
+    }
+
+    if (ocrResult.isEmpty) {
+      return const ReceiptSaveResult(
+        success: false,
+        message: 'Please scan the receipt before saving it as an expense.',
+      );
+    }
+
+    if (amountText.isEmpty || amountValue == null) {
+      return const ReceiptSaveResult(
+        success: false,
+        message: 'The scanned receipt did not contain a valid amount.',
+      );
+    }
+
+    if (category.isEmpty) {
+      return const ReceiptSaveResult(
+        success: false,
+        message: 'The scanned receipt did not contain a valid category.',
+      );
+    }
+
+    isSaving.value = true;
+
+    try {
+      final response = await _incomeRepository.createExpense(
+        fields: <String, String>{
+          'amount': amountValue.toString(),
+          'category': category,
+          'date': DateTime.now().toIso8601String().split('T').first,
+          'description': '',
+        },
+        image: File(image.path),
+      );
+
+      final message = _readText(response['message']);
+      _refreshTransactionData();
+
+      clearSelection();
+      return ReceiptSaveResult(
+        success: true,
+        message: message.isNotEmpty
+            ? message
+            : 'Receipt saved as expense successfully.',
+      );
+    } on NetworkException catch (error) {
+      return ReceiptSaveResult(success: false, message: error.message);
+    } catch (error) {
+      Get.log('Receipt save failed: $error');
+      return const ReceiptSaveResult(
+        success: false,
+        message: 'Unable to create expense from the scanned receipt.',
+      );
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
   Future<dynamic> _uploadReceiptImage(XFile image) async {
     final uploadFieldNames = <String>[
       'file',
@@ -198,6 +281,20 @@ class ScanReceiptController extends GetxController {
 
   String _readText(dynamic value) {
     return value?.toString().trim() ?? '';
+  }
+
+  void _refreshTransactionData() {
+    if (Get.isRegistered<HomeController>()) {
+      unawaited(Get.find<HomeController>().refreshDashboard());
+    }
+
+    if (Get.isRegistered<TransactionController>()) {
+      unawaited(Get.find<TransactionController>().fetchTransactions());
+    }
+
+    if (Get.isRegistered<StatsController>()) {
+      unawaited(Get.find<StatsController>().fetchExpenseReport());
+    }
   }
 
   void clearSelection() {

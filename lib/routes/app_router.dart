@@ -21,6 +21,7 @@ import '../features/auth/forgot_password/forgot_password_controller.dart';
 import '../features/scan_receipt/scan_receipt_page.dart';
 import '../features/audit_readiness/audit_readiness_page.dart';
 import '../features/audit_readiness/expert_support_page.dart';
+import '../features/audit_readiness/expert_support_controller.dart';
 import '../features/notices/notice_binding.dart';
 import '../features/notices/notice_page.dart';
 import '../features/scan_receipt/scan_receipt_controller.dart';
@@ -124,7 +125,10 @@ class AppRouter {
       ),
       GoRoute(
         path: Routes.EXPERT_SUPPORT,
-        builder: (context, state) => const ExpertSupportPage(),
+        builder: (context, state) {
+          Get.lazyPut(() => ExpertSupportController());
+          return const ExpertSupportPage();
+        },
       ),
       GoRoute(
         path: Routes.MY_PROFILE,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/secure_storage_service.dart';
+import '../../core/services/chat_socket_service.dart';
 import '../profile/profile_controller.dart';
 import '../../routes/app_routes.dart';
 import '../../routes/app_router.dart';
@@ -25,6 +26,9 @@ class AuthController extends GetxController {
     if (hasToken) {
       try {
         await _profileController.fetchProfile(showLoading: false);
+        if (Get.isRegistered<ChatSocketService>()) {
+          await Get.find<ChatSocketService>().connect();
+        }
       } catch (_) {}
       AppRouter.router.go(Routes.HOME);
     } else {
@@ -82,6 +86,10 @@ class AuthController extends GetxController {
 
       // 3. Clear profile cache
       await _profileController.clearProfile();
+
+      if (Get.isRegistered<ChatSocketService>()) {
+        Get.find<ChatSocketService>().disconnect();
+      }
 
       // 4. Navigate to Login
       AppRouter.router.go(Routes.LOGIN);
