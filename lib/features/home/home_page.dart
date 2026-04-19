@@ -130,8 +130,8 @@ class HomePage extends GetView<HomeController> {
           ),
           onTap: () {
             controller.changeTabIndex(
-              1,
-            ); // Navigates to TransactionContent (History)
+              2,
+            ); // Navigates to StatsContent (Reports)
           },
         ),
         // Audit Readiness

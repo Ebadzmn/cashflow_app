@@ -79,7 +79,10 @@ class OnboardingPage extends GetView<OnboardingController> {
                       // Get Started Button
                       PrimaryButton(
                         text: 'Get Started',
-                        onPressed: () => context.push(Routes.SIGNUP),
+                        onPressed: () {
+                          controller.markOnboardingSeen();
+                          context.go(Routes.SIGNUP);
+                        },
                       ),
                       
                       const SizedBox(height: 16),
@@ -87,7 +90,10 @@ class OnboardingPage extends GetView<OnboardingController> {
                       // Login Button
                       PrimaryButton(
                         text: 'Login',
-                        onPressed: () => context.push(Routes.LOGIN),
+                        onPressed: () {
+                          controller.markOnboardingSeen();
+                          context.go(Routes.LOGIN);
+                        },
                         isGlass: true,
                       ),
                     ],

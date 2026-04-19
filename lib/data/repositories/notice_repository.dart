@@ -5,8 +5,13 @@ import '../models/notice_response.dart';
 class NoticeRepository {
   final ApiClient _apiClient = ApiClient.instance;
 
-  Future<List<NoticeItem>> getNotices() async {
-    final response = await _apiClient.get(ApiEndpoints.notices);
+  Future<List<NoticeItem>> getNotices({String? type}) async {
+    final response = await _apiClient.get(
+      ApiEndpoints.notices,
+      query: type == null || type.trim().isEmpty
+          ? null
+          : <String, dynamic>{'type': type.trim()},
+    );
     final data = response.data;
     final items = data is Map<String, dynamic> ? data['data'] : data;
 

@@ -57,6 +57,8 @@ class ExpertSupportController extends GetxController {
 
   final Set<String> _messageKeys = <String>{};
   StreamSubscription<Map<String, dynamic>>? _socketSubscription;
+  StreamSubscription<Map<String, dynamic>>? _readReceiptSubscription;
+  Timer? _pendingSyncTimer;
   bool _isBootstrapping = false;
 
   @override
@@ -69,6 +71,16 @@ class ExpertSupportController extends GetxController {
       },
       onDone: () {
         Get.log('Chat socket stream closed');
+      },
+      cancelOnError: false,
+    );
+    _readReceiptSubscription = _chatSocketService.readReceiptStream.listen(
+      _handleMessagesRead,
+      onError: (Object error, StackTrace stackTrace) {
+        Get.log('Chat read-receipt stream error: $error');
+      },
+      onDone: () {
+        Get.log('Chat read-receipt stream closed');
       },
       cancelOnError: false,
     );
@@ -293,7 +305,16 @@ class ExpertSupportController extends GetxController {
       }
 
       final wasAtBottom = _isNearBottom();
-      messagesList.addAll(freshMessages);
+      for (final incoming in freshMessages) {
+        _mergeIncomingMessage(
+          incoming.copyWith(
+            roomId: incoming.roomId.isNotEmpty
+                ? incoming.roomId
+                : chatRoomId.value,
+            isPending: false,
+          ),
+        );
+      }
       _syncMessageKeys();
       hasMore.value = result.hasMore || hasMore.value;
 
@@ -357,13 +378,29 @@ class ExpertSupportController extends GetxController {
     selectedAttachment.value = null;
 
     try {
-      final sentMessage = await _chatRepository.sendMessage(
-        chatRoomId: roomId,
-        messageType: messageType,
-        content: text.isEmpty ? null : text,
-        clientMessageId: clientMessageId,
-        file: attachment?.file,
-      );
+      ChatMessageItem? sentMessage;
+
+      if (attachment == null) {
+        final sentOnSocket = await _chatSocketService.sendTextMessage(
+          chatRoomId: roomId,
+          content: text,
+          clientMessageId: clientMessageId,
+        );
+
+        if (!sentOnSocket) {
+          throw Exception('Socket is not connected. Please try again.');
+        }
+
+          _schedulePendingSync();
+      } else {
+        sentMessage = await _chatRepository.sendMessage(
+          chatRoomId: roomId,
+          messageType: messageType,
+          content: text.isEmpty ? null : text,
+          clientMessageId: clientMessageId,
+          file: attachment.file,
+        );
+      }
 
       if (sentMessage != null) {
         _mergeIncomingMessage(
@@ -515,6 +552,36 @@ class ExpertSupportController extends GetxController {
     }
   }
 
+  void _handleMessagesRead(Map<String, dynamic> payload) {
+    final roomId =
+        (payload['chatRoomId'] ?? payload['roomId'] ?? '').toString().trim();
+    if (roomId.isEmpty || roomId != chatRoomId.value) {
+      return;
+    }
+
+    final readAt = DateTime.now();
+    var changed = false;
+
+    for (var index = 0; index < messagesList.length; index++) {
+      final message = messagesList[index];
+      final isMine = message.isMineFor(
+        currentUserName: currentUserName,
+        currentUserEmail: currentUserEmail,
+      );
+
+      if (!isMine || message.isRead) {
+        continue;
+      }
+
+      messagesList[index] = message.copyWith(readAt: readAt);
+      changed = true;
+    }
+
+    if (changed) {
+      _syncMessageKeys();
+    }
+  }
+
   bool _mergeIncomingMessage(ChatMessageItem incoming) {
     final pendingIndex = _findPendingMessageIndex(incoming);
     if (pendingIndex != -1) {
@@ -555,9 +622,12 @@ class ExpertSupportController extends GetxController {
       }
 
       final sameType = candidate.messageType == incoming.messageType;
-      final sameContent = candidate.content.trim() == incoming.content.trim();
-      final sameAttachment =
-          candidate.localFileName?.trim() == incoming.localFileName?.trim();
+      final sameContent =
+          _normalizeMatchText(candidate.content) ==
+          _normalizeMatchText(incoming.content);
+        final sameAttachment =
+          _normalizeNullableText(candidate.localFileName) ==
+          _normalizeNullableText(incoming.localFileName);
 
       if (sameType && sameContent && sameAttachment) {
         messagesList[index] = incoming.copyWith(
@@ -574,7 +644,7 @@ class ExpertSupportController extends GetxController {
   int _findPendingMessageIndex(ChatMessageItem incoming) {
     if (incoming.clientMessageId != null &&
         incoming.clientMessageId!.isNotEmpty) {
-      for (var index = 0; index < messagesList.length; index++) {
+      for (var index = messagesList.length - 1; index >= 0; index--) {
         final message = messagesList[index];
         if (message.isPending &&
             message.clientMessageId == incoming.clientMessageId) {
@@ -583,15 +653,17 @@ class ExpertSupportController extends GetxController {
       }
     }
 
-    for (var index = 0; index < messagesList.length; index++) {
+    for (var index = messagesList.length - 1; index >= 0; index--) {
       final message = messagesList[index];
       if (!message.isPending) {
         continue;
       }
 
       if (message.messageType == incoming.messageType &&
-          message.content.trim() == incoming.content.trim() &&
-          message.localFileName?.trim() == incoming.localFileName?.trim()) {
+          _normalizeMatchText(message.content) ==
+              _normalizeMatchText(incoming.content) &&
+          _normalizeNullableText(message.localFileName) ==
+              _normalizeNullableText(incoming.localFileName)) {
         return index;
       }
     }
@@ -646,6 +718,24 @@ class ExpertSupportController extends GetxController {
       ..addAll(messagesList.map((message) => message.messageKey));
   }
 
+  void _schedulePendingSync() {
+    _pendingSyncTimer?.cancel();
+    _pendingSyncTimer = Timer(const Duration(milliseconds: 900), () {
+      if (chatRoomId.value.isEmpty) {
+        return;
+      }
+      unawaited(refreshLatestMessages());
+    });
+  }
+
+  String _normalizeMatchText(String value) {
+    return value.trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  String _normalizeNullableText(String? value) {
+    return value?.trim() ?? '';
+  }
+
   bool _isNearBottom() {
     if (!scrollController.hasClients) {
       return true;
@@ -656,17 +746,24 @@ class ExpertSupportController extends GetxController {
   }
 
   void _scrollToBottom() {
+    _scrollToBottomWithRetry();
+  }
+
+  void _scrollToBottomWithRetry({int attempt = 0}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!scrollController.hasClients) {
+        if (attempt < 4) {
+          _scrollToBottomWithRetry(attempt: attempt + 1);
+        }
         return;
       }
 
       final maxExtent = scrollController.position.maxScrollExtent;
-      if (maxExtent <= 0) {
-        return;
-      }
-
       scrollController.jumpTo(maxExtent);
+
+      if (attempt < 2) {
+        _scrollToBottomWithRetry(attempt: attempt + 1);
+      }
     });
   }
 
@@ -712,9 +809,11 @@ class ExpertSupportController extends GetxController {
   @override
   void onClose() {
     _socketSubscription?.cancel();
+    _readReceiptSubscription?.cancel();
     if (chatRoomId.value.isNotEmpty) {
       _chatSocketService.leaveRoom(chatRoomId.value);
     }
+    _pendingSyncTimer?.cancel();
     messageController.dispose();
     scrollController.dispose();
     super.onClose();

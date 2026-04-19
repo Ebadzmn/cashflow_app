@@ -195,7 +195,13 @@ class AuditReadinessPage extends StatelessWidget {
                           icon: Icons.description_outlined,
                           title: 'IRS Notice Download',
                           showArrow: true,
-                          onTap: () => context.push(Routes.NOTICES),
+                          onTap: () => context.push(
+                            Routes.NOTICES,
+                            extra: const <String, String>{
+                              'type': 'IRS Notice',
+                              'title': 'IRS Notices',
+                            },
+                          ),
                         ),
                         const SizedBox(height: 16),
                         _buildActionItem(
@@ -205,8 +211,15 @@ class AuditReadinessPage extends StatelessWidget {
                           iconBgColor: const Color(
                             0xFF2196F3,
                           ), // Blue bg for plus icon
-                          showArrow: false,
+                          showArrow: true,
                           isGlow: true,
+                          onTap: () => context.push(
+                            Routes.NOTICES,
+                            extra: const <String, String>{
+                              'type': 'Case Status',
+                              'title': 'Case Status',
+                            },
+                          ),
                         ),
                         const SizedBox(height: 16),
                         _buildActionItem(

@@ -12,8 +12,11 @@ import '../../data/models/notice_response.dart';
 import '../../data/repositories/notice_repository.dart';
 
 class NoticeController extends GetxController {
+  NoticeController({required this.noticeType});
+
   final NoticeRepository _noticeRepository = NoticeRepository();
   final ApiClient _apiClient = ApiClient.instance;
+  final String noticeType;
 
   final noticeList = <NoticeItem>[].obs;
   final isLoading = false.obs;
@@ -32,7 +35,7 @@ class NoticeController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final notices = await _noticeRepository.getNotices();
+      final notices = await _noticeRepository.getNotices(type: noticeType);
       noticeList.assignAll(notices);
     } catch (error) {
       errorMessage.value = 'Failed to load notices';

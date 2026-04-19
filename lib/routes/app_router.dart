@@ -119,8 +119,25 @@ class AppRouter {
       GoRoute(
         path: Routes.NOTICES,
         builder: (context, state) {
-          NoticeBinding().dependencies();
-          return const NoticePage();
+          final extra = state.extra;
+          var noticeType = 'IRS Notice';
+          var pageTitle = 'IRS Notices';
+
+          if (extra is Map) {
+            final type = extra['type']?.toString().trim();
+            final title = extra['title']?.toString().trim();
+
+            if (type != null && type.isNotEmpty) {
+              noticeType = type;
+            }
+
+            if (title != null && title.isNotEmpty) {
+              pageTitle = title;
+            }
+          }
+
+          NoticeBinding(noticeType: noticeType).dependencies();
+          return NoticePage(pageTitle: pageTitle);
         },
       ),
       GoRoute(

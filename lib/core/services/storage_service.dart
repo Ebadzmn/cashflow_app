@@ -11,6 +11,7 @@ class StorageService extends GetxService {
   static const String keyImage = 'image';
   static const String keyPlan = 'plan';
   static const String keyVerified = 'verified';
+  static const String keyHasSeenOnboarding = 'has_seen_onboarding';
 
   Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -49,4 +50,10 @@ class StorageService extends GetxService {
   String? getImage() => _prefs.getString(keyImage);
   String? getPlan() => _prefs.getString(keyPlan);
   bool? getVerified() => _prefs.getBool(keyVerified);
+
+  bool hasSeenOnboarding() => _prefs.getBool(keyHasSeenOnboarding) ?? false;
+
+  Future<void> setHasSeenOnboarding(bool value) async {
+    await _prefs.setBool(keyHasSeenOnboarding, value);
+  }
 }

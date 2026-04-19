@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 
 import '../network/api_endpoints.dart';
 import 'secure_storage_service.dart';
@@ -11,16 +11,16 @@ class ChatSocketService extends GetxService {
   final SecureStorageService _storageService = SecureStorageService();
   final StreamController<Map<String, dynamic>> _messageController =
       StreamController<Map<String, dynamic>>.broadcast();
+  final StreamController<Map<String, dynamic>> _readReceiptController =
+    StreamController<Map<String, dynamic>>.broadcast();
 
-  IO.Socket? _socket;
+  io.Socket? _socket;
   String? _joinedRoomId;
   bool _isConnecting = false;
-  String? _resolvedMessageEvent;
-
-  // Keep this true while diagnosing backend event names to avoid dropping payloads.
-  static const bool _bypassMessageEventFilter = true;
 
   Stream<Map<String, dynamic>> get messageStream => _messageController.stream;
+  Stream<Map<String, dynamic>> get readReceiptStream =>
+    _readReceiptController.stream;
 
   bool get isConnected => _socket?.connected ?? false;
 
@@ -29,62 +29,78 @@ class ChatSocketService extends GetxService {
       return;
     }
 
-    if (_socket != null) {
-      _socket?.connect();
+    final token = (await _storageService.getAccessToken())?.trim();
+    if (token == null || token.isEmpty) {
+      Get.log('Skipped socket connect: JWT token missing');
       return;
     }
 
     _isConnecting = true;
+    _resetSocket();
 
-    final token = (await _storageService.getAccessToken())?.trim();
-    final hasToken = token != null && token.isNotEmpty;
-
-    final options = <String, dynamic>{
-      'transports': <String>['websocket'],
-      'autoConnect': false,
-      'reconnection': true,
-      'forceNew': false,
-      if (hasToken)
-        'extraHeaders': <String, dynamic>{'Authorization': 'Bearer $token'},
-      if (hasToken)
-        'query': <String, dynamic>{'token': token, 'accessToken': token},
-      if (hasToken)
-        'auth': <String, dynamic>{
-          'token': token,
-          'accessToken': token,
-          'authorization': 'Bearer $token',
-          'Authorization': 'Bearer $token',
-        },
-    };
-
-    final socket = IO.io(ApiEndpoints.socketBaseUrl, options);
+    final socket = io.io(
+      ApiEndpoints.socketBaseUrl,
+      io.OptionBuilder()
+          .setTransports(<String>['websocket'])
+          .disableAutoConnect()
+          .enableReconnection()
+          .setAuth(<String, dynamic>{'token': token})
+          .setExtraHeaders(<String, dynamic>{'Authorization': 'Bearer $token'})
+          .build(),
+    );
     _socket = socket;
 
     socket.onConnect((_) {
       _isConnecting = false;
-      _resolvedMessageEvent = null;
-      Get.log('Chat socket connected');
-      _bindResolvedMessageEvent();
+      Get.log('Socket connected: ${socket.id}');
       _joinRoomIfConnected();
     });
 
     socket.onDisconnect((reason) {
       _isConnecting = false;
-      Get.log('Chat socket disconnected: $reason');
+      Get.log('Socket disconnected: $reason');
     });
 
     socket.onConnectError((error) {
       _isConnecting = false;
-      Get.log('Chat socket connect error: $error');
+      Get.log('Connection error: $error');
     });
 
     socket.onError((error) {
-      Get.log('Chat socket error: $error');
+      Get.log('Socket error: $error');
     });
 
-    socket.onAny(_handleAnyEvent);
+    socket.on('joinedRoom', (dynamic roomId) {
+      Get.log('Joined room: $roomId');
+    });
 
-    Get.log('Chat socket connecting to ${ApiEndpoints.socketBaseUrl}');
+    socket.on('roomError', (dynamic message) {
+      Get.log('Room error: $message');
+    });
+
+    socket.on('messageError', (dynamic error) {
+      Get.log('Message error: $error');
+    });
+
+    socket.on('readError', (dynamic error) {
+      Get.log('Read error: $error');
+    });
+
+    socket.on('newMessage', (dynamic payload) {
+      final normalized = _normalizePayload(payload);
+      if (normalized.isNotEmpty) {
+        _messageController.add(normalized);
+      }
+    });
+
+    socket.on('messagesRead', (dynamic payload) {
+      final normalized = _normalizePayload(payload);
+      if (normalized.isNotEmpty) {
+        _readReceiptController.add(normalized);
+      }
+    });
+
+    Get.log('Socket connecting to ${ApiEndpoints.socketBaseUrl}');
     socket.connect();
   }
 
@@ -102,7 +118,7 @@ class ChatSocketService extends GetxService {
       return;
     }
 
-    _emitIfConnected('leave_room', _roomPayload(chatRoomId));
+    _emitIfConnected('leaveRoom', chatRoomId);
     if (_joinedRoomId == chatRoomId) {
       _joinedRoomId = null;
     }
@@ -113,105 +129,76 @@ class ChatSocketService extends GetxService {
       return;
     }
 
-    _emitIfConnected('mark_read', _roomPayload(chatRoomId));
+    _emitIfConnected('markMessagesAsRead', chatRoomId);
+  }
+
+  Future<bool> sendTextMessage({
+    required String chatRoomId,
+    required String content,
+    String? clientMessageId,
+  }) async {
+    return sendMessage(
+      chatRoomId: chatRoomId,
+      messageType: 'text',
+      content: content,
+      clientMessageId: clientMessageId,
+    );
+  }
+
+  Future<bool> sendMessage({
+    required String chatRoomId,
+    required String messageType,
+    String? content,
+    String? clientMessageId,
+    Map<String, dynamic>? file,
+  }) async {
+    if (chatRoomId.isEmpty) {
+      return false;
+    }
+
+    if (_socket?.connected != true) {
+      await connect();
+    }
+
+    final socket = _socket;
+    if (socket == null || !socket.connected) {
+      Get.log('Skipped sendMessage because socket is not connected');
+      return false;
+    }
+
+    final payload = <String, dynamic>{
+      'chatRoomId': chatRoomId,
+      'messageType': messageType,
+      if (content != null && content.trim().isNotEmpty) 'content': content.trim(),
+      if (clientMessageId != null && clientMessageId.trim().isNotEmpty)
+        'clientMessageId': clientMessageId.trim(),
+      if (file != null && file.isNotEmpty) 'file': file,
+    };
+
+    socket.emit('sendMessage', payload);
+    return true;
+  }
+
+  void markMessagesAsRead(String chatRoomId) {
+    emitMarkRead(chatRoomId);
   }
 
   void disconnect() {
     _isConnecting = false;
-    _resolvedMessageEvent = null;
     _joinedRoomId = null;
-    _socket?.disconnect();
-    _socket?.destroy();
-    _socket = null;
-  }
-
-  void _handleIncomingEvent(dynamic payload, {String? sourceEvent}) {
-    final normalized = _normalizePayload(payload);
-    if (normalized.isNotEmpty) {
-      if (sourceEvent != null && sourceEvent.isNotEmpty) {
-        Get.log('Socket message from "$sourceEvent": $normalized');
-      }
-      _messageController.add(normalized);
-    }
-  }
-
-  void _handleAnyEvent(dynamic eventName, dynamic payload) {
-    final event = eventName?.toString().trim().toLowerCase() ?? '';
-    Get.log('Socket onAny event="$event" payload=$payload');
-
-    if (_isBlockedSystemEvent(event)) {
-      return;
-    }
-
-    if (_resolvedMessageEvent != null && event != _resolvedMessageEvent) {
-      return;
-    }
-
-    if (!_bypassMessageEventFilter && !_looksLikeMessageEvent(event, payload)) {
-      return;
-    }
-
-    final normalized = _normalizePayload(payload);
-    if (normalized.isEmpty) {
-      return;
-    }
-
-    var justDiscoveredEvent = false;
-    final isMessagePayload = _looksLikeMessageMap(normalized);
-    if (isMessagePayload && _resolvedMessageEvent == null) {
-      _resolvedMessageEvent = event;
-      justDiscoveredEvent = true;
-      Get.log('Discovered chat message event: $_resolvedMessageEvent');
-      _bindResolvedMessageEvent();
-    }
-
-    // Avoid duplicate emission when exact listener is already bound.
-    if (_resolvedMessageEvent != null &&
-        event == _resolvedMessageEvent &&
-        !justDiscoveredEvent) {
-      return;
-    }
-
-    _messageController.add(normalized);
-  }
-
-  void _bindResolvedMessageEvent() {
-    final socket = _socket;
-    final event = _resolvedMessageEvent;
-    if (socket == null || event == null || event.isEmpty) {
-      return;
-    }
-
-    socket.off(event);
-    socket.on(event, (dynamic payload) {
-      _handleIncomingEvent(payload, sourceEvent: event);
-    });
+    _resetSocket();
   }
 
   void _joinRoomIfConnected() {
-    final socket = _socket;
     final roomId = _joinedRoomId;
-    if (socket == null || roomId == null || roomId.isEmpty) {
+    if (roomId == null || roomId.isEmpty) {
       return;
     }
 
-    if (!socket.connected) {
-      Get.log('join_room deferred until connected');
-      return;
-    }
-
-    final payload = _roomPayload(roomId);
-    socket.emitWithAck(
-      'join_room',
-      payload,
-      ack: (dynamic response) {
-        Get.log('join_room ACK: $response');
-      },
-    );
-    Get.log('join_room emitted for room=$roomId');
+    _emitIfConnected('joinRoom', roomId);
   }
 
-  void _emitIfConnected(String event, Map<String, dynamic> payload) {
+  void _emitIfConnected(String event, dynamic payload) {
     final socket = _socket;
     if (socket == null || !socket.connected) {
       Get.log('Skipped emit "$event" because socket is not connected');
@@ -219,87 +206,21 @@ class ChatSocketService extends GetxService {
     }
 
     socket.emit(event, payload);
+    if (event == 'joinRoom') {
+      Get.log('joinRoom emitted for room=$payload');
+    }
   }
 
-  bool _looksLikeMessageMap(Map<String, dynamic> map) {
-    return map.containsKey('content') ||
-        map.containsKey('message') ||
-        map.containsKey('messageType') ||
-        map.containsKey('chatRoomId') ||
-        map.containsKey('chatRoom') ||
-        map.containsKey('roomId') ||
-        map.containsKey('sender') ||
-        map.containsKey('createdAt') ||
-        map.containsKey('_id') ||
-        map.containsKey('id');
-  }
-
-  bool _isBlockedSystemEvent(String event) {
-    const blockedEvents = <String>{
-      'connect',
-      'disconnect',
-      'reconnect',
-      'reconnect_attempt',
-      'reconnect_error',
-      'reconnect_failed',
-      'error',
-      'ping',
-      'pong',
-      'open',
-      'close',
-    };
-
-    if (blockedEvents.contains(event)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  bool _looksLikeMessageEvent(String event, dynamic payload) {
-    if (event.contains('message') ||
-        event.contains('chat') ||
-        event.contains('room_message')) {
-      return true;
-    }
-
-    if (payload is Map) {
-      final map = payload.map((key, value) => MapEntry(key.toString(), value));
-      return map.containsKey('content') ||
-          map.containsKey('message') ||
-          map.containsKey('messageType') ||
-          map.containsKey('chatRoomId') ||
-          map.containsKey('chatRoom') ||
-          map.containsKey('roomId') ||
-          map.containsKey('sender') ||
-          map.containsKey('data') ||
-          map.containsKey('_id') ||
-          map.containsKey('id');
-    }
-
-    if (payload is List) {
-      return payload.any((item) => item is Map || item is String);
-    }
-
-    if (payload is String) {
-      return payload.contains('content') ||
-          payload.contains('messageType') ||
-          payload.contains('chatRoomId') ||
-          payload.contains('chatRoom') ||
-          payload.contains('roomId');
-    }
-
-    return false;
-  }
-
-  Map<String, dynamic> _roomPayload(String chatRoomId) {
-    return <String, dynamic>{
-      'chatRoomId': chatRoomId,
-      'chatRoom': chatRoomId,
-      'roomId': chatRoomId,
-      'id': chatRoomId,
-      'room': chatRoomId,
-    };
+  void _resetSocket() {
+    _socket?.off('newMessage');
+    _socket?.off('messagesRead');
+    _socket?.off('joinedRoom');
+    _socket?.off('roomError');
+    _socket?.off('messageError');
+    _socket?.off('readError');
+    _socket?.disconnect();
+    _socket?.destroy();
+    _socket = null;
   }
 
   Map<String, dynamic> _normalizePayload(dynamic payload) {
@@ -388,6 +309,7 @@ class ChatSocketService extends GetxService {
   @override
   void onClose() {
     disconnect();
+    _readReceiptController.close();
     _messageController.close();
     super.onClose();
   }

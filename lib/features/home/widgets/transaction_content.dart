@@ -72,43 +72,70 @@ class TransactionContent extends StatelessWidget {
 
           Expanded(
             child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Color(0xFF56CCF2)),
-                );
-              }
-
-              if (controller.filteredTransactions.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No data available',
-                    style: TextStyle(color: Colors.white54, fontSize: 14),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.only(
-                  bottom: 100,
-                  left: 10,
-                  right: 10,
-                ),
-                itemCount: controller.filteredTransactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = controller.filteredTransactions[index];
-                  return _TransactionItem(
-                    title: transaction.title,
-                    subtitle: transaction.subtitle,
-                    amount: transaction.amount,
-                    isIncome: transaction.isIncome,
-                    trailingText: transaction.trailingText,
-                  );
-                },
+              return RefreshIndicator(
+                onRefresh: controller.fetchTransactions,
+                color: const Color(0xFF56CCF2),
+                backgroundColor: const Color(0xFF16253A),
+                child: _buildHistoryList(context, controller),
               );
             }),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHistoryList(
+    BuildContext context,
+    TransactionController controller,
+  ) {
+    if (controller.isLoading.value && controller.filteredTransactions.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: const EdgeInsets.only(bottom: 100, left: 10, right: 10),
+        children: const [
+          SizedBox(height: 220),
+          Center(child: CircularProgressIndicator(color: Color(0xFF56CCF2))),
+        ],
+      );
+    }
+
+    if (controller.filteredTransactions.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: const EdgeInsets.only(bottom: 100, left: 10, right: 10),
+        children: const [
+          SizedBox(height: 220),
+          Center(
+            child: Text(
+              'No data available',
+              style: TextStyle(color: Colors.white54, fontSize: 14),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      padding: const EdgeInsets.only(bottom: 100, left: 10, right: 10),
+      itemCount: controller.filteredTransactions.length,
+      itemBuilder: (context, index) {
+        final transaction = controller.filteredTransactions[index];
+        return _TransactionItem(
+          title: transaction.title,
+          subtitle: transaction.subtitle,
+          amount: transaction.amount,
+          isIncome: transaction.isIncome,
+          trailingText: transaction.trailingText,
+        );
+      },
     );
   }
 }

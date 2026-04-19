@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'notice_controller.dart';
 
 class NoticePage extends StatefulWidget {
-  const NoticePage({super.key});
+  const NoticePage({super.key, required this.pageTitle});
+
+  final String pageTitle;
 
   @override
   State<NoticePage> createState() => _NoticePageState();
@@ -45,11 +47,11 @@ class _NoticePageState extends State<NoticePage> {
                           size: 20,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'IRS Notices',
+                          widget.pageTitle,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

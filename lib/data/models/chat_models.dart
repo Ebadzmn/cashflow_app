@@ -196,7 +196,10 @@ class ChatMessageItem {
           : _readText(json['clientMessageId'] ?? json['client_message_id']),
       isPending: false,
       localFilePath: null,
-      localFileName: _readText(json['fileName'] ?? json['filename']),
+        localFileName:
+          _readText(json['fileName'] ?? json['filename']).isEmpty
+          ? null
+          : _readText(json['fileName'] ?? json['filename']),
       attachmentUrl:
           _readText(
             json['fileUrl'] ?? json['attachmentUrl'] ?? json['attachment'],

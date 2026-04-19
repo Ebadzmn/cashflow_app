@@ -46,11 +46,14 @@ class ExpertSupportPage extends GetView<ExpertSupportController> {
                     NotificationListener<ScrollNotification>(
                       onNotification: (notification) {
                         final isNearTop = notification.metrics.pixels <= 120;
+                        final hasScrolledFromTop =
+                          notification.metrics.pixels > 0;
                         final shouldLoad =
                             controller.hasMore.value &&
                             !controller.isLoadingMore.value;
 
                         if (shouldLoad &&
+                          hasScrolledFromTop &&
                             isNearTop &&
                             (notification is ScrollUpdateNotification ||
                                 notification is OverscrollNotification ||

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/secure_storage_service.dart';
+import '../../core/services/storage_service.dart';
 import '../../core/services/chat_socket_service.dart';
 import '../profile/profile_controller.dart';
 import '../../routes/app_routes.dart';
@@ -9,6 +10,7 @@ import '../../core/network/api_client.dart';
 
 class AuthController extends GetxController {
   final SecureStorageService _storageService = SecureStorageService();
+  final StorageService _localStorageService = Get.find<StorageService>();
   final ProfileController _profileController = Get.find<ProfileController>();
 
   @override
@@ -20,6 +22,12 @@ class AuthController extends GetxController {
   Future<void> checkAuthStatus() async {
     // Artificial delay for splash screen feel
     await Future.delayed(const Duration(seconds: 2));
+
+    final hasSeenOnboarding = _localStorageService.hasSeenOnboarding();
+    if (!hasSeenOnboarding) {
+      AppRouter.router.go(Routes.ONBOARDING);
+      return;
+    }
 
     final hasToken = await _storageService.hasTokens();
 
