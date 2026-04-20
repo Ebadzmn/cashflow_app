@@ -31,6 +31,7 @@ import '../features/auth/forgot_password/change_password_page.dart';
 import '../features/auth/forgot_password/change_password_controller.dart';
 import '../features/premium_plans/premium_plans_page.dart';
 import '../features/premium_plans/premium_plans_controller.dart';
+import '../features/legal/eula_webview_page.dart';
 import '../features/legal/terms_and_conditions_page.dart';
 import '../features/legal/terms_and_conditions_details_page.dart';
 import '../features/legal/terms_and_conditions_controller.dart';
@@ -168,6 +169,10 @@ class AppRouter {
           Get.lazyPut(() => PremiumPlansController());
           return const PremiumPlansPage();
         },
+      ),
+      GoRoute(
+        path: Routes.EULA,
+        builder: (context, state) => const EulaWebViewPage(),
       ),
       GoRoute(
         path: Routes.TERMS,

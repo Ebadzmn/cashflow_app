@@ -48,6 +48,8 @@ dependencies:
   flutter_html: ^3.0.0
   socket_io_client: ^3.1.4
   file_picker: ^11.0.2
+  in_app_purchase: ^3.2.3
+  webview_flutter: ^4.13.1
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,9 @@
-import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import '../../routes/app_routes.dart';
 import 'premium_plans_controller.dart';
 
 class PremiumPlansPage extends StatelessWidget {
@@ -336,6 +337,132 @@ class PremiumPlansPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 30),
+
+                      if (_shouldShowRestorePurchasesButton()) ...[
+                        Center(
+                          child: TextButton.icon(
+                            onPressed: controller.restorePurchases,
+                            icon: const Icon(
+                              Icons.restore,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            label: Text(
+                              'Restore Purchases',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 28),
+                          child: Text(
+                            'Already subscribed on your Apple account? Restore it here.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white70,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.18),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Subscription automatically renews unless canceled at least 24 hours before renewal.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Renewal charges will be billed to your Apple ID account.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () => context.push(Routes.EULA),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Terms of Use (EULA)',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => context.push(Routes.PRIVACY),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 6,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Privacy Policy',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                     ],
                   ),
                 ),
@@ -539,5 +666,11 @@ class PremiumPlansPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  bool _shouldShowRestorePurchasesButton() {
+    return !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS);
   }
 }
