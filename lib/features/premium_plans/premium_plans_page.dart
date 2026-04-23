@@ -11,7 +11,9 @@ class PremiumPlansPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(PremiumPlansController());
+    final controller = Get.isRegistered<PremiumPlansController>()
+        ? Get.find<PremiumPlansController>()
+        : Get.put(PremiumPlansController());
 
     return Scaffold(
       body: Container(
@@ -85,6 +87,51 @@ class PremiumPlansPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
+
+                    Obx(() {
+                      final statusText = controller.isLoadingProducts.value
+                          ? 'Loading plans...'
+                          : controller.isPurchasing.value
+                          ? 'Processing purchase...'
+                          : controller.isRestoringPurchases.value
+                          ? 'Restoring purchases...'
+                          : controller.isSubscribed.value
+                          ? 'Subscription active'
+                          : '';
+
+                      if (statusText.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.18),
+                            ),
+                          ),
+                          child: Text(
+                            statusText,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+
+                    const SizedBox(height: 12),
                     // Tab Bar
                     Container(
                       height: 45,
@@ -197,6 +244,8 @@ class PremiumPlansPage extends StatelessWidget {
                         priceSubtitle: '',
                         subtitle:
                             'User acquisition, data capture, upsell funnel',
+                        buttonLabel: 'Purchase',
+                        onPressed: null,
                         features: [
                           {
                             'text': 'Basic income & expense tracking (limited)',
@@ -211,12 +260,28 @@ class PremiumPlansPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
                       _buildPricingCard(
-                        title: 'BASIC – Growth',
-                        price: controller.isYearly.value ? '\$299' : '\$29',
-                        priceSubtitle: controller.isYearly.value
-                            ? '/year'
-                            : '/mon',
+                        title: 'Monthly Basic Growth',
+                        price:
+                            controller.productDetails.value?.price ?? '\$29.99',
+                        priceSubtitle: '/month',
                         subtitle: 'Solopreneurs, freelancers, small businesses',
+                        buttonLabel: controller.isSubscribed.value
+                            ? 'Subscribed'
+                            : controller.isPurchasing.value
+                            ? 'Processing...'
+                            : 'Subscribe',
+                        onPressed:
+                            controller.isSubscribed.value ||
+                                controller.isPurchasing.value ||
+                                controller.isLoadingProducts.value
+                            ? null
+                            : controller.purchaseMonthlyBasic,
+                        onCardTap:
+                            controller.isSubscribed.value ||
+                                controller.isPurchasing.value ||
+                                controller.isLoadingProducts.value
+                            ? null
+                            : controller.purchaseMonthlyBasic,
                         features: [
                           {
                             'text': 'Unlimited income & expense tracking',
@@ -246,6 +311,8 @@ class PremiumPlansPage extends StatelessWidget {
                         subtitle:
                             'High-income earners, contractors, serious compliance',
                         isRecommended: true,
+                        buttonLabel: 'Purchase',
+                        onPressed: null,
                         features: [
                           {'text': 'Advanced reports', 'included': true},
                           {'text': 'Schedule C summaries', 'included': true},
@@ -266,6 +333,8 @@ class PremiumPlansPage extends StatelessWidget {
                             ? '/year'
                             : '/mon',
                         subtitle: 'Companies, LLCs, multiple businesses',
+                        buttonLabel: 'Purchase',
+                        onPressed: null,
                         features: [
                           {'text': 'Audit-readiness system', 'included': true},
                           {
@@ -297,6 +366,8 @@ class PremiumPlansPage extends StatelessWidget {
                             ? '/year'
                             : '/mon',
                         subtitle: 'Companies, LLCs, multiple businesses',
+                        buttonLabel: 'Purchase',
+                        onPressed: null,
                         features: [
                           {
                             'text': 'All Elite features included',
@@ -418,7 +489,8 @@ class PremiumPlansPage extends StatelessWidget {
                                   runSpacing: 8,
                                   children: [
                                     TextButton(
-                                      onPressed: () => context.push(Routes.EULA),
+                                      onPressed: () =>
+                                          context.push(Routes.EULA),
                                       style: TextButton.styleFrom(
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(
@@ -437,7 +509,8 @@ class PremiumPlansPage extends StatelessWidget {
                                       ),
                                     ),
                                     TextButton(
-                                      onPressed: () => context.push(Routes.PRIVACY),
+                                      onPressed: () =>
+                                          context.push(Routes.PRIVACY),
                                       style: TextButton.styleFrom(
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(
@@ -479,7 +552,10 @@ class PremiumPlansPage extends StatelessWidget {
     required String price,
     required String priceSubtitle,
     required String subtitle,
+    required VoidCallback? onPressed,
+    VoidCallback? onCardTap,
     required List<Map<String, dynamic>> features,
+    String buttonLabel = 'Purchase',
     bool isRecommended = false,
   }) {
     final cardContent = Stack(
@@ -582,15 +658,17 @@ class PremiumPlansPage extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: onPressed,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0288D1),
+                    backgroundColor: onPressed == null
+                        ? Colors.white24
+                        : const Color(0xFF0288D1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: Text(
-                    'Purchase',
+                    buttonLabel,
                     style: GoogleFonts.outfit(
                       color: Colors.white,
                       fontSize: 18,
@@ -605,15 +683,21 @@ class PremiumPlansPage extends StatelessWidget {
       ],
     );
 
+    final tappableCard = GestureDetector(
+      onTap: onCardTap,
+      behavior: HitTestBehavior.opaque,
+      child: cardContent,
+    );
+
     if (!isRecommended) {
-      return cardContent;
+      return tappableCard;
     }
 
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.topCenter,
       children: [
-        Padding(padding: const EdgeInsets.only(top: 16.0), child: cardContent),
+        Padding(padding: const EdgeInsets.only(top: 16.0), child: tappableCard),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(

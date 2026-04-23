@@ -10,6 +10,8 @@ class StorageService extends GetxService {
   static const String keyRole = 'role';
   static const String keyImage = 'image';
   static const String keyPlan = 'plan';
+  static const String keyIsSubscribed = 'is_subscribed';
+  static const String keySubscribedProductId = 'subscribed_product_id';
   static const String keyVerified = 'verified';
   static const String keyHasSeenOnboarding = 'has_seen_onboarding';
 
@@ -37,6 +39,23 @@ class StorageService extends GetxService {
     await _prefs.setBool(keyVerified, verified);
   }
 
+  Future<void> saveSubscriptionState({
+    required bool isSubscribed,
+    String? productId,
+    String? plan,
+  }) async {
+    await _prefs.setBool(keyIsSubscribed, isSubscribed);
+    if (productId == null || productId.isEmpty) {
+      await _prefs.remove(keySubscribedProductId);
+    } else {
+      await _prefs.setString(keySubscribedProductId, productId);
+    }
+
+    if (plan != null && plan.isNotEmpty) {
+      await _prefs.setString(keyPlan, plan);
+    }
+  }
+
   // Clear All Data
   Future<void> clearAll() async {
     await _prefs.clear();
@@ -49,6 +68,8 @@ class StorageService extends GetxService {
   String? getRole() => _prefs.getString(keyRole);
   String? getImage() => _prefs.getString(keyImage);
   String? getPlan() => _prefs.getString(keyPlan);
+  bool isSubscribed() => _prefs.getBool(keyIsSubscribed) ?? false;
+  String? getSubscribedProductId() => _prefs.getString(keySubscribedProductId);
   bool? getVerified() => _prefs.getBool(keyVerified);
 
   bool hasSeenOnboarding() => _prefs.getBool(keyHasSeenOnboarding) ?? false;
