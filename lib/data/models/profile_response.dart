@@ -21,6 +21,7 @@ class ProfileData {
   final String image;
   final String plan;
   final String? expireDate;
+  final bool isPremium;
   final bool verified;
 
   ProfileData({
@@ -30,8 +31,11 @@ class ProfileData {
     required this.image,
     required this.plan,
     required this.expireDate,
+    required this.isPremium,
     required this.verified,
   });
+
+  bool get isPremiumUser => isPremium || plan.toLowerCase() != 'free';
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
@@ -39,8 +43,9 @@ class ProfileData {
       email: json['email'] ?? '',
       contact: json['contact']?.toString(),
       image: json['image'] ?? '',
-      plan: json['plan'] ?? '',
+      plan: json['plan'] ?? 'Free',
       expireDate: json['expireDate']?.toString(),
+      isPremium: json['isPremium'] ?? false,
       verified: json['verified'] ?? false,
     );
   }

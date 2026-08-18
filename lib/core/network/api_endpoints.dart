@@ -1,6 +1,6 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://10.10.7.106:5001/api/v1';
-  static const String socketBaseUrl = 'http://10.10.7.106:5001';
+  static const String baseUrl = 'http://10.10.26.198:5000/api/v1';
+  static const String socketBaseUrl = 'http://10.10.26.198:5000';
   static const String login = '/auth/login';
   static const String signup = '/user'; // Updated for registration API
   static const String profile = '/user/profile';
@@ -21,4 +21,8 @@ class ApiEndpoints {
   static const String notices = '/notices';
   static const String verifyEmail = '/auth/verify-email';
   static const String refreshToken = '/auth/refresh';
+  static const String subscriptionVerify = '/subscription/verify';
+  static const String subscriptionStatus = '/subscription/status';
+  static const String subscriptionRestore = '/subscription/restore';
+  static const String subscriptionHistory = '/subscription/history';
 }

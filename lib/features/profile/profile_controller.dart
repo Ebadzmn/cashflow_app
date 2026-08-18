@@ -19,6 +19,8 @@ class ProfileController extends GetxService {
   final TextEditingController nameController = TextEditingController();
   final Rxn<XFile> selectedImage = Rxn<XFile>();
 
+  bool get isPremiumUser => userProfile.value?.isPremiumUser ?? false;
+
   Future<void> prepareEditProfile() async {
     if (userProfile.value == null) {
       try {

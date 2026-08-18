@@ -259,29 +259,43 @@ class PremiumPlansPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 30),
+                      // Monthly / Yearly Basic Growth Card
                       _buildPricingCard(
-                        title: 'Monthly Basic Growth',
-                        price:
-                            controller.productDetails.value?.price ?? '\$29.99',
-                        priceSubtitle: '/month',
+                        title: controller.isYearly.value
+                            ? 'Yearly Basic Growth'
+                            : 'Monthly Basic Growth',
+                        price: controller.getProductPrice(
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyBasicProductId
+                              : PremiumPlansController.monthlyBasicProductId,
+                          controller.isYearly.value ? '\$299.99' : '\$29.99',
+                        ),
+                        priceSubtitle: controller.isYearly.value ? '/year' : '/month',
                         subtitle: 'Solopreneurs, freelancers, small businesses',
-                        buttonLabel: controller.isSubscribed.value
-                            ? 'Subscribed'
-                            : controller.isPurchasing.value
-                            ? 'Processing...'
-                            : 'Subscribe',
-                        onPressed:
-                            controller.isSubscribed.value ||
-                                controller.isPurchasing.value ||
-                                controller.isLoadingProducts.value
-                            ? null
-                            : controller.purchaseMonthlyBasic,
-                        onCardTap:
-                            controller.isSubscribed.value ||
-                                controller.isPurchasing.value ||
-                                controller.isLoadingProducts.value
-                            ? null
-                            : controller.purchaseMonthlyBasic,
+                        buttonLabel: _getButtonLabel(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyBasicProductId
+                              : PremiumPlansController.monthlyBasicProductId,
+                        ),
+                        onPressed: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyBasicProductId
+                              : PremiumPlansController.monthlyBasicProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Basic Growth'
+                              : 'Monthly Basic Growth',
+                        ),
+                        onCardTap: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyBasicProductId
+                              : PremiumPlansController.monthlyBasicProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Basic Growth'
+                              : 'Monthly Basic Growth',
+                        ),
                         features: [
                           {
                             'text': 'Unlimited income & expense tracking',
@@ -302,17 +316,46 @@ class PremiumPlansPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 30),
+
+                      // PRO - Professional Card
                       _buildPricingCard(
-                        title: 'PRO – Professional',
-                        price: controller.isYearly.value ? '\$599' : '\$59',
-                        priceSubtitle: controller.isYearly.value
-                            ? '/year'
-                            : '/mon',
+                        title: controller.isYearly.value
+                            ? 'Yearly Pro Professional'
+                            : 'Monthly Pro Professional',
+                        price: controller.getProductPrice(
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyProProductId
+                              : PremiumPlansController.monthlyProProductId,
+                          controller.isYearly.value ? '\$599' : '\$59',
+                        ),
+                        priceSubtitle: controller.isYearly.value ? '/year' : '/mon',
                         subtitle:
                             'High-income earners, contractors, serious compliance',
                         isRecommended: true,
-                        buttonLabel: 'Purchase',
-                        onPressed: null,
+                        buttonLabel: _getButtonLabel(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyProProductId
+                              : PremiumPlansController.monthlyProProductId,
+                        ),
+                        onPressed: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyProProductId
+                              : PremiumPlansController.monthlyProProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Pro Professional'
+                              : 'Monthly Pro Professional',
+                        ),
+                        onCardTap: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyProProductId
+                              : PremiumPlansController.monthlyProProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Pro Professional'
+                              : 'Monthly Pro Professional',
+                        ),
                         features: [
                           {'text': 'Advanced reports', 'included': true},
                           {'text': 'Schedule C summaries', 'included': true},
@@ -326,15 +369,44 @@ class PremiumPlansPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 30),
+
+                      // ELITE - Power User Card
                       _buildPricingCard(
-                        title: 'ELITE – Power User',
-                        price: controller.isYearly.value ? '\$999' : '\$99',
-                        priceSubtitle: controller.isYearly.value
-                            ? '/year'
-                            : '/mon',
+                        title: controller.isYearly.value
+                            ? 'Yearly Elite Power User'
+                            : 'Monthly Elite Power User',
+                        price: controller.getProductPrice(
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyEliteProductId
+                              : PremiumPlansController.monthlyEliteProductId,
+                          controller.isYearly.value ? '\$999' : '\$99',
+                        ),
+                        priceSubtitle: controller.isYearly.value ? '/year' : '/mon',
                         subtitle: 'Companies, LLCs, multiple businesses',
-                        buttonLabel: 'Purchase',
-                        onPressed: null,
+                        buttonLabel: _getButtonLabel(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyEliteProductId
+                              : PremiumPlansController.monthlyEliteProductId,
+                        ),
+                        onPressed: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyEliteProductId
+                              : PremiumPlansController.monthlyEliteProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Elite Power User'
+                              : 'Monthly Elite Power User',
+                        ),
+                        onCardTap: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyEliteProductId
+                              : PremiumPlansController.monthlyEliteProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Elite Power User'
+                              : 'Monthly Elite Power User',
+                        ),
                         features: [
                           {'text': 'Audit-readiness system', 'included': true},
                           {
@@ -359,15 +431,44 @@ class PremiumPlansPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 30),
+
+                      // CASHFLOWIQ SHIELD - Audit Defense Card
                       _buildPricingCard(
-                        title: 'CASHFLOWIQ SHIELD™ – Audit Defense',
-                        price: controller.isYearly.value ? '\$1499' : '\$149',
-                        priceSubtitle: controller.isYearly.value
-                            ? '/year'
-                            : '/mon',
+                        title: controller.isYearly.value
+                            ? 'Yearly Shield Audit Defense'
+                            : 'Monthly Shield Audit Defense',
+                        price: controller.getProductPrice(
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyShieldProductId
+                              : PremiumPlansController.monthlyShieldProductId,
+                          controller.isYearly.value ? '\$1499' : '\$149',
+                        ),
+                        priceSubtitle: controller.isYearly.value ? '/year' : '/mon',
                         subtitle: 'Companies, LLCs, multiple businesses',
-                        buttonLabel: 'Purchase',
-                        onPressed: null,
+                        buttonLabel: _getButtonLabel(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyShieldProductId
+                              : PremiumPlansController.monthlyShieldProductId,
+                        ),
+                        onPressed: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyShieldProductId
+                              : PremiumPlansController.monthlyShieldProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Shield Audit Defense'
+                              : 'Monthly Shield Audit Defense',
+                        ),
+                        onCardTap: _getButtonAction(
+                          controller,
+                          controller.isYearly.value
+                              ? PremiumPlansController.yearlyShieldProductId
+                              : PremiumPlansController.monthlyShieldProductId,
+                          controller.isYearly.value
+                              ? 'Yearly Shield Audit Defense'
+                              : 'Monthly Shield Audit Defense',
+                        ),
                         features: [
                           {
                             'text': 'All Elite features included',
@@ -750,6 +851,30 @@ class PremiumPlansPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getButtonLabel(PremiumPlansController controller, String productId) {
+    if (controller.isSubscribed.value && controller.activeProductId.value == productId) {
+      return 'Subscribed';
+    }
+    if (controller.isPurchasing.value) {
+      return 'Processing...';
+    }
+    return 'Purchase';
+  }
+
+  VoidCallback? _getButtonAction(
+    PremiumPlansController controller,
+    String productId,
+    String planTitle,
+  ) {
+    if (controller.isSubscribed.value && controller.activeProductId.value == productId) {
+      return null;
+    }
+    if (controller.isPurchasing.value || controller.isLoadingProducts.value) {
+      return null;
+    }
+    return () => controller.purchasePlan(productId, planTitle);
   }
 
   bool _shouldShowRestorePurchasesButton() {

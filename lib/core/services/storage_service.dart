@@ -70,6 +70,7 @@ class StorageService extends GetxService {
   String? getPlan() => _prefs.getString(keyPlan);
   bool isSubscribed() => _prefs.getBool(keyIsSubscribed) ?? false;
   String? getSubscribedProductId() => _prefs.getString(keySubscribedProductId);
+  String? getActiveProductId() => _prefs.getString(keySubscribedProductId);
   bool? getVerified() => _prefs.getBool(keyVerified);
 
   bool hasSeenOnboarding() => _prefs.getBool(keyHasSeenOnboarding) ?? false;

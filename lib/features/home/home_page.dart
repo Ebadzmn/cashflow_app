@@ -6,6 +6,7 @@ import 'widgets/home_header.dart';
 import 'widgets/balance_chart_card.dart';
 import 'widgets/audit_risk_card.dart';
 import 'widgets/blurred_card_overlay.dart';
+import '../profile/profile_controller.dart';
 import 'widgets/action_card.dart';
 import 'widgets/transaction_content.dart';
 import 'widgets/stats_content.dart';
@@ -61,19 +62,22 @@ class HomePage extends GetView<HomeController> {
                     child: const BalanceChartCard(),
                   ),
                 ),
-                Obx(
-                  () => BlurredCardOverlay(
-                    isPro: controller.isPro.value,
+                Obx(() {
+                  final profileController = Get.find<ProfileController>();
+                  final isUnlocked = profileController.isPremiumUser;
+
+                  return BlurredCardOverlay(
+                    isPro: isUnlocked,
                     child: GestureDetector(
                       onTap: () {
-                        if (controller.isPro.value) {
+                        if (isUnlocked) {
                           context.push(Routes.AUDIT_READINESS);
                         }
                       },
                       child: const AuditRiskCard(),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 const SizedBox(height: 8),
                 _buildActionList(context),
               ],
