@@ -108,6 +108,7 @@ class PremiumPlansController extends GetxController {
     activeProductId.value = _storageService.getActiveProductId() ?? '';
     _subscribeToPurchaseUpdates();
     unawaited(_loadProductsCatalog());
+    unawaited(checkBackendSubscriptionStatus());
   }
 
   @override
@@ -409,7 +410,8 @@ class PremiumPlansController extends GetxController {
     );
 
     if (Get.isRegistered<ProfileController>()) {
-      unawaited(Get.find<ProfileController>().fetchProfile(showLoading: false));
+      final profileCtrl = Get.find<ProfileController>();
+      unawaited(profileCtrl.fetchProfile(showLoading: false));
     }
 
     _showSnackbar(

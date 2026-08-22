@@ -34,6 +34,7 @@ class AuthController extends GetxController {
     if (hasToken) {
       try {
         await _profileController.fetchProfile(showLoading: false);
+        await _profileController.checkSubscriptionStatus();
         if (Get.isRegistered<ChatSocketService>()) {
           await Get.find<ChatSocketService>().connect();
         }

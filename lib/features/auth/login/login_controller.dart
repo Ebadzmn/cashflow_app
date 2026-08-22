@@ -61,6 +61,7 @@ class LoginController extends GetxController {
 
         try {
           await _profileController.fetchProfile(showLoading: false);
+          await _profileController.checkSubscriptionStatus();
         } catch (_) {}
 
         if (Get.isRegistered<ChatSocketService>()) {

@@ -7,8 +7,10 @@ import 'dart:io';
 
 import '../../core/network/api_endpoints.dart';
 import '../../core/network/network_exception.dart';
+import '../../core/services/storage_service.dart';
 import '../../data/models/profile_response.dart';
 import '../../data/repositories/auth_repository.dart';
+import '../../data/repositories/subscription_repository.dart';
 
 class ProfileController extends GetxService {
   final AuthRepository _authRepository = AuthRepository();
@@ -19,7 +21,32 @@ class ProfileController extends GetxService {
   final TextEditingController nameController = TextEditingController();
   final Rxn<XFile> selectedImage = Rxn<XFile>();
 
-  bool get isPremiumUser => userProfile.value?.isPremiumUser ?? false;
+  bool get isPremiumUser {
+    final fromBackend = userProfile.value?.isPremiumUser ?? false;
+    if (fromBackend) return true;
+    if (Get.isRegistered<StorageService>()) {
+      return Get.find<StorageService>().isSubscribed();
+    }
+    return false;
+  }
+
+  /// Calls backend `/subscription/status` to verify current subscription state
+  /// and updates local storage accordingly.
+  Future<void> checkSubscriptionStatus() async {
+    try {
+      final subRepo = SubscriptionRepository();
+      final status = await subRepo.getSubscriptionStatus();
+      final isSubbed = status.data?.premium ?? false;
+
+      if (Get.isRegistered<StorageService>()) {
+        await Get.find<StorageService>().saveSubscriptionState(
+          isSubscribed: isSubbed,
+        );
+      }
+    } catch (e) {
+      Get.log('Failed to check subscription status: $e');
+    }
+  }
 
   Future<void> prepareEditProfile() async {
     if (userProfile.value == null) {
@@ -224,6 +251,11 @@ class ProfileController extends GetxService {
     isLoading.value = false;
     nameController.clear();
     selectedImage.value = null;
+    if (Get.isRegistered<StorageService>()) {
+      await Get.find<StorageService>().saveSubscriptionState(
+        isSubscribed: false,
+      );
+    }
   }
 
   @override
