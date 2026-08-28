@@ -13,7 +13,9 @@ class StatsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<StatsController>();
+    final controller = Get.isRegistered<StatsController>()
+        ? Get.find<StatsController>()
+        : Get.put(StatsController());
     final profileController = Get.find<ProfileController>();
 
     return SafeArea(

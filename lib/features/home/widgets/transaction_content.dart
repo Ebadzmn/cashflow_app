@@ -8,7 +8,9 @@ class TransactionContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<TransactionController>();
+    final controller = Get.isRegistered<TransactionController>()
+        ? Get.find<TransactionController>()
+        : Get.put(TransactionController());
 
     return SafeArea(
       bottom: false,

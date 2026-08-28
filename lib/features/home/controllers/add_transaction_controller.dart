@@ -11,6 +11,7 @@ import '../../../core/network/network_exception.dart';
 import '../../../data/repositories/income_repository.dart';
 import '../home_controller.dart';
 import 'stats_controller.dart';
+import 'transaction_controller.dart';
 
 class IncomeSubmitResult {
   final bool success;
@@ -211,6 +212,8 @@ class AddTransactionController extends GetxController {
         final message = (response['message'] as String?)?.trim();
         clearForm();
 
+        _refreshRelatedData();
+
         return IncomeSubmitResult(
           success: true,
           message: message?.isNotEmpty == true
@@ -279,13 +282,7 @@ class AddTransactionController extends GetxController {
       final message = (response['message'] as String?)?.trim();
       clearForm();
 
-      if (Get.isRegistered<HomeController>()) {
-        unawaited(Get.find<HomeController>().fetchBalanceChartData());
-      }
-
-      if (selectedType.value == 1 && Get.isRegistered<StatsController>()) {
-        unawaited(Get.find<StatsController>().fetchExpenseReport());
-      }
+      _refreshRelatedData();
 
       return IncomeSubmitResult(
         success: true,
@@ -318,6 +315,20 @@ class AddTransactionController extends GetxController {
     selectedDate.value = null;
     selectedImage.value = null;
     selectedType.value = 0;
+  }
+
+  void _refreshRelatedData() {
+    if (Get.isRegistered<HomeController>()) {
+      unawaited(Get.find<HomeController>().refreshDashboard());
+    }
+
+    if (Get.isRegistered<TransactionController>()) {
+      unawaited(Get.find<TransactionController>().fetchTransactions());
+    }
+
+    if (Get.isRegistered<StatsController>()) {
+      unawaited(Get.find<StatsController>().fetchExpenseReport());
+    }
   }
 
   @override
