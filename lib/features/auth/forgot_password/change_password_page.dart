@@ -93,22 +93,23 @@ class ChangePasswordPage extends GetView<ChangePasswordController> {
                           ),
                           const SizedBox(height: 32),
 
-                          // Old Password
-                          _buildLabel('Old Password'),
-                          const SizedBox(height: 8),
-                          Obx(
-                            () => GlassTextField(
-                              controller: controller.oldPasswordController,
-                              hintText: 'Enter your old password',
-                              isPassword: true,
-                              isPasswordVisible:
-                                  controller.isOldPasswordVisible.value,
-                              onTogglePassword:
-                                  controller.toggleOldPasswordVisibility,
+                          // Old Password (only when changing password from inside profile, not during reset)
+                          if (!controller.isResetFlow) ...[
+                            _buildLabel('Old Password'),
+                            const SizedBox(height: 8),
+                            Obx(
+                              () => GlassTextField(
+                                controller: controller.oldPasswordController,
+                                hintText: 'Enter your old password',
+                                isPassword: true,
+                                isPasswordVisible:
+                                    controller.isOldPasswordVisible.value,
+                                onTogglePassword:
+                                    controller.toggleOldPasswordVisibility,
+                              ),
                             ),
-                          ),
-
-                          const SizedBox(height: 24),
+                            const SizedBox(height: 24),
+                          ],
 
                           // New Password
                           _buildLabel('New Password'),
@@ -157,9 +158,13 @@ class ChangePasswordPage extends GetView<ChangePasswordController> {
             bottom: 40,
             left: 24,
             right: 24,
-            child: PrimaryButton(
-              text: 'Save',
-              onPressed: () => controller.savePassword(),
+            child: Obx(
+              () => PrimaryButton(
+                text: controller.isLoading.value ? 'Saving...' : 'Save',
+                onPressed: controller.isLoading.value
+                    ? () {}
+                    : () => controller.savePassword(),
+              ),
             ),
           ),
         ],

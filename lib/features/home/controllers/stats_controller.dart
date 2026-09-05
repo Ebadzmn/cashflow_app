@@ -142,12 +142,46 @@ class StatsController extends GetxController {
     try {
       final response = await _apiClient.get(
         endpoint,
-        options: Options(responseType: responseType),
+        options: Options(
+          responseType: responseType,
+          validateStatus: (status) => status != null && status < 500,
+        ),
       );
+
+      if (response.statusCode != null && response.statusCode! >= 400) {
+        String msg = 'Failed to generate report (${response.statusCode})';
+        if (response.data is Map && response.data['message'] != null) {
+          msg = response.data['message'].toString();
+        }
+        throw Exception(msg);
+      }
+
+      // Check if the backend responded with a JSON containing a remote URL
+      if (response.data is Map && response.data['url'] != null) {
+        final fileUrl = response.data['url'].toString();
+        final directory = await getTemporaryDirectory();
+        final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
+        final path = '${directory.path}/report_$timestamp.$fileExtension';
+        await _apiClient.download(fileUrl, path);
+        filePath.value = path;
+        final openResult = await OpenFilex.open(path);
+        if (openResult.type != ResultType.done) {
+          Get.snackbar(
+            'Saved',
+            'Report downloaded to: $path',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 4),
+          );
+        }
+        return;
+      }
+
       final bytes = _extractBytes(response.data);
 
       if (bytes == null || bytes.isEmpty) {
-        throw const FormatException('Empty file response');
+        throw const FormatException('Empty file response received from server');
       }
 
       final directory = await getTemporaryDirectory();
@@ -174,8 +208,8 @@ class StatsController extends GetxController {
     } catch (error) {
       Get.log('Report export failed: $error');
       Get.snackbar(
-        'Error',
-        'Failed to download report',
+        'Download Error',
+        error.toString().replaceAll('Exception:', '').trim(),
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -196,6 +230,13 @@ class StatsController extends GetxController {
     }
 
     if (data is String) {
+      // Check if it's base64 encoded
+      try {
+        if (data.startsWith('data:')) {
+          final base64String = data.split(',').last;
+          return base64Decode(base64String);
+        }
+      } catch (_) {}
       return utf8.encode(data);
     }
 
@@ -206,7 +247,11 @@ class StatsController extends GetxController {
       }
 
       if (nested is String) {
-        return utf8.encode(nested);
+        try {
+          return base64Decode(nested);
+        } catch (_) {
+          return utf8.encode(nested);
+        }
       }
     }
 

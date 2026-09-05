@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../models/profile_response.dart';
@@ -58,6 +60,66 @@ class AuthRepository {
     final response = await _apiClient.post(
       ApiEndpoints.verifyEmail,
       body: {'email': email, 'oneTimeCode': oneTimeCode},
+    );
+
+    // Check if token is in headers (e.g., authorization or token header)
+    String? tokenFromHeader;
+    final authHeader = response.headers.value('authorization') ??
+        response.headers.value('token') ??
+        response.headers.value('reset-token');
+    if (authHeader != null && authHeader.isNotEmpty) {
+      tokenFromHeader = authHeader.replaceFirst('Bearer ', '').trim();
+    }
+
+    return VerifyEmailResponse.fromJson(
+      response.data,
+      tokenFromHeader: tokenFromHeader,
+    );
+  }
+
+  Future<VerifyEmailResponse> forgotPassword(String email) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.forgotPassword,
+      body: {'email': email},
+    );
+
+    return VerifyEmailResponse.fromJson(response.data);
+  }
+
+  Future<VerifyEmailResponse> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final cleanToken = resetToken.replaceFirst('Bearer ', '').trim();
+    final response = await _apiClient.post(
+      ApiEndpoints.resetPassword,
+      body: {
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword,
+      },
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $cleanToken',
+        },
+      ),
+    );
+
+    return VerifyEmailResponse.fromJson(response.data);
+  }
+
+  Future<VerifyEmailResponse> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.changePassword,
+      body: {
+        'currentPassword': currentPassword,
+        'oldPassword': currentPassword,
+        'newPassword': newPassword,
+        'password': newPassword,
+      },
     );
 
     return VerifyEmailResponse.fromJson(response.data);

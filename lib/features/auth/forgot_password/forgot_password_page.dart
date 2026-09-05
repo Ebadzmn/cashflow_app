@@ -111,9 +111,15 @@ class ForgotPasswordPage extends GetView<ForgotPasswordController> {
                               const SizedBox(height: 32),
 
                               // Continue Button
-                              PrimaryButton(
-                                text: 'Continue',
-                                onPressed: () => controller.submitEmail(context),
+                              Obx(
+                                () => PrimaryButton(
+                                  text: controller.isLoading.value
+                                      ? 'Sending...'
+                                      : 'Continue',
+                                  onPressed: controller.isLoading.value
+                                      ? () {}
+                                      : () => controller.submitEmail(context),
+                                ),
                               ),
                             ],
                           ),

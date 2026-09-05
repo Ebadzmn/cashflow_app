@@ -1,6 +1,8 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://10.10.26.198:5000/api/v1';
-  static const String socketBaseUrl = 'http://10.10.26.198:5000';
+  static const String baseUrl = 'https://api.mycashflowiq.com/api/v1';
+  static const String socketBaseUrl = 'https://api.mycashflowiq.com';
+  // static const String baseUrl = 'http://10.10.26.198:5000/api/v1';
+  // static const String socketBaseUrl = 'http://10.10.26.198:5000';
   static const String login = '/auth/login';
   static const String signup = '/user'; // Updated for registration API
   static const String profile = '/user/profile';
@@ -20,6 +22,9 @@ class ApiEndpoints {
   static const String bankTransaction = '/bank-transaction';
   static const String notices = '/notices';
   static const String verifyEmail = '/auth/verify-email';
+  static const String forgotPassword = '/auth/forget-password';
+  static const String resetPassword = '/auth/reset-password';
+  static const String changePassword = '/auth/change-password';
   static const String refreshToken = '/auth/refresh';
   static const String subscriptionVerify = '/subscription/verify';
   static const String subscriptionStatus = '/subscription/status';

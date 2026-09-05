@@ -224,7 +224,7 @@ class StatsContent extends StatelessWidget {
                                     text: 'Download Report',
                                     height: 56,
                                     borderRadius: 14,
-                                    onPressed: (!isPremium || controller.isDownloading.value)
+                                    onPressed: controller.isDownloading.value
                                         ? null
                                         : () {
                                             final format =

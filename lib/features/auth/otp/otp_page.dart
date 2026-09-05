@@ -157,9 +157,15 @@ class OtpPage extends GetView<OtpController> {
                               const SizedBox(height: 32),
 
                               // Verify Button
-                              PrimaryButton(
-                                text: 'Verify',
-                                onPressed: controller.verifyOtp,
+                              Obx(
+                                () => PrimaryButton(
+                                  text: controller.isLoading.value
+                                      ? 'Verifying...'
+                                      : 'Verify',
+                                  onPressed: controller.isLoading.value
+                                      ? () {}
+                                      : () => controller.verifyOtp(context),
+                                ),
                               ),
 
                               const SizedBox(height: 24),

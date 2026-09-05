@@ -73,14 +73,14 @@ class AppRouter {
       GoRoute(
         path: Routes.LOGIN,
         builder: (context, state) {
-          Get.lazyPut(() => LoginController());
+          Get.lazyPut(() => LoginController(), fenix: true);
           return const LoginPage();
         },
       ),
       GoRoute(
         path: Routes.SIGNUP,
         builder: (context, state) {
-          Get.lazyPut(() => SignupController());
+          Get.lazyPut(() => SignupController(), fenix: true);
           return const SignupPage();
         },
       ),
@@ -88,21 +88,22 @@ class AppRouter {
         path: Routes.VERIFY_EMAIL,
         builder: (context, state) {
           final email = state.extra as String? ?? '';
-          Get.lazyPut(() => VerifyEmailController(email: email));
+          Get.lazyPut(() => VerifyEmailController(email: email), fenix: true);
           return const VerifyEmailPage();
         },
       ),
       GoRoute(
         path: Routes.OTP,
         builder: (context, state) {
-          Get.lazyPut(() => OtpController());
+          final email = state.extra as String? ?? '';
+          Get.lazyPut(() => OtpController(email: email), fenix: true);
           return const OtpPage();
         },
       ),
       GoRoute(
         path: Routes.FORGOT_PASSWORD,
         builder: (context, state) {
-          Get.lazyPut(() => ForgotPasswordController());
+          Get.lazyPut(() => ForgotPasswordController(), fenix: true);
           return const ForgotPasswordPage();
         },
       ),
@@ -159,7 +160,15 @@ class AppRouter {
       GoRoute(
         path: Routes.CHANGE_PASSWORD,
         builder: (context, state) {
-          Get.lazyPut(() => ChangePasswordController());
+          final extra = state.extra as Map<String, dynamic>?;
+          Get.lazyPut(
+            () => ChangePasswordController(
+              email: extra?['email']?.toString() ?? '',
+              resetToken: extra?['resetToken']?.toString() ?? '',
+              oneTimeCode: extra?['oneTimeCode'] as int? ?? 0,
+              isResetFlow: extra?['isResetFlow'] as bool? ?? false,
+            ),
+          );
           return const ChangePasswordPage();
         },
       ),

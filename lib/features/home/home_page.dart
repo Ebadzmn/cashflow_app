@@ -70,9 +70,7 @@ class HomePage extends GetView<HomeController> {
                     isPro: isUnlocked,
                     child: GestureDetector(
                       onTap: () {
-                        if (isUnlocked) {
-                          context.push(Routes.AUDIT_READINESS);
-                        }
+                        context.push(Routes.AUDIT_READINESS);
                       },
                       child: const AuditRiskCard(),
                     ),
