@@ -23,16 +23,7 @@ class VerifyEmailController extends GetxController {
 
   final RxBool isLoading = false.obs;
 
-  @override
-  void onClose() {
-    for (final controller in otpControllers) {
-      controller.dispose();
-    }
-    for (final focusNode in otpFocusNodes) {
-      focusNode.dispose();
-    }
-    super.onClose();
-  }
+
 
   String get otp => otpControllers.map((controller) => controller.text).join();
 

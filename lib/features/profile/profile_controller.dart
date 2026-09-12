@@ -258,9 +258,4 @@ class ProfileController extends GetxService {
     }
   }
 
-  @override
-  void onClose() {
-    nameController.dispose();
-    super.onClose();
-  }
 }

@@ -814,8 +814,6 @@ class ExpertSupportController extends GetxController {
       _chatSocketService.leaveRoom(chatRoomId.value);
     }
     _pendingSyncTimer?.cancel();
-    messageController.dispose();
-    scrollController.dispose();
     super.onClose();
   }
 }

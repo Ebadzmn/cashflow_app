@@ -331,14 +331,5 @@ class AddTransactionController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    amountController.dispose();
-    descriptionController.dispose();
-    dateController.dispose();
-    bankNameController.dispose();
-    accountNumberController.dispose();
-    refIdController.dispose();
-    super.onClose();
-  }
+
 }

@@ -33,13 +33,7 @@ class ChangePasswordController extends GetxController {
   void toggleNewPasswordVisibility() => isNewPasswordVisible.toggle();
   void toggleConfirmPasswordVisibility() => isConfirmPasswordVisible.toggle();
 
-  @override
-  void onClose() {
-    oldPasswordController.dispose();
-    newPasswordController.dispose();
-    confirmPasswordController.dispose();
-    super.onClose();
-  }
+
 
   Future<void> savePassword() async {
     final oldPassword = oldPasswordController.text.trim();

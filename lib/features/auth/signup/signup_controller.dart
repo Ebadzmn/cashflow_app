@@ -18,15 +18,7 @@ class SignupController extends GetxController {
   final isConfirmPasswordVisible = false.obs;
   final termsAccepted = false.obs;
 
-  @override
-  void onClose() {
-    nameController.dispose();
-    contactController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.onClose();
-  }
+
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;

@@ -73,14 +73,20 @@ class AppRouter {
       GoRoute(
         path: Routes.LOGIN,
         builder: (context, state) {
-          Get.lazyPut(() => LoginController(), fenix: true);
+          if (Get.isRegistered<LoginController>()) {
+            Get.delete<LoginController>(force: true);
+          }
+          Get.put(LoginController());
           return const LoginPage();
         },
       ),
       GoRoute(
         path: Routes.SIGNUP,
         builder: (context, state) {
-          Get.lazyPut(() => SignupController(), fenix: true);
+          if (Get.isRegistered<SignupController>()) {
+            Get.delete<SignupController>(force: true);
+          }
+          Get.put(SignupController());
           return const SignupPage();
         },
       ),
@@ -88,7 +94,10 @@ class AppRouter {
         path: Routes.VERIFY_EMAIL,
         builder: (context, state) {
           final email = state.extra as String? ?? '';
-          Get.lazyPut(() => VerifyEmailController(email: email), fenix: true);
+          if (Get.isRegistered<VerifyEmailController>()) {
+            Get.delete<VerifyEmailController>(force: true);
+          }
+          Get.put(VerifyEmailController(email: email));
           return const VerifyEmailPage();
         },
       ),
@@ -96,21 +105,30 @@ class AppRouter {
         path: Routes.OTP,
         builder: (context, state) {
           final email = state.extra as String? ?? '';
-          Get.lazyPut(() => OtpController(email: email), fenix: true);
+          if (Get.isRegistered<OtpController>()) {
+            Get.delete<OtpController>(force: true);
+          }
+          Get.put(OtpController(email: email));
           return const OtpPage();
         },
       ),
       GoRoute(
         path: Routes.FORGOT_PASSWORD,
         builder: (context, state) {
-          Get.lazyPut(() => ForgotPasswordController(), fenix: true);
+          if (Get.isRegistered<ForgotPasswordController>()) {
+            Get.delete<ForgotPasswordController>(force: true);
+          }
+          Get.put(ForgotPasswordController());
           return const ForgotPasswordPage();
         },
       ),
       GoRoute(
         path: Routes.SCAN_RECEIPT,
         builder: (context, state) {
-          Get.lazyPut(() => ScanReceiptController());
+          if (Get.isRegistered<ScanReceiptController>()) {
+            Get.delete<ScanReceiptController>(force: true);
+          }
+          Get.put(ScanReceiptController());
           return const ScanReceiptPage();
         },
       ),
@@ -145,7 +163,10 @@ class AppRouter {
       GoRoute(
         path: Routes.EXPERT_SUPPORT,
         builder: (context, state) {
-          Get.lazyPut(() => ExpertSupportController());
+          if (Get.isRegistered<ExpertSupportController>()) {
+            Get.delete<ExpertSupportController>(force: true);
+          }
+          Get.put(ExpertSupportController());
           return const ExpertSupportPage();
         },
       ),
@@ -161,8 +182,11 @@ class AppRouter {
         path: Routes.CHANGE_PASSWORD,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          Get.lazyPut(
-            () => ChangePasswordController(
+          if (Get.isRegistered<ChangePasswordController>()) {
+            Get.delete<ChangePasswordController>(force: true);
+          }
+          Get.put(
+            ChangePasswordController(
               email: extra?['email']?.toString() ?? '',
               resetToken: extra?['resetToken']?.toString() ?? '',
               oneTimeCode: extra?['oneTimeCode'] as int? ?? 0,

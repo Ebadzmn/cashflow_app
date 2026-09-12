@@ -10,11 +10,7 @@ class ForgotPasswordController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
   final RxBool isLoading = false.obs;
 
-  @override
-  void onClose() {
-    emailController.dispose();
-    super.onClose();
-  }
+
 
   Future<void> submitEmail(BuildContext context) async {
     final email = emailController.text.trim();

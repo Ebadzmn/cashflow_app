@@ -19,12 +19,7 @@ class LoginController extends GetxController {
   final RxBool rememberMe = false.obs;
   final RxBool isPasswordVisible = false.obs;
 
-  @override
-  void onClose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.onClose();
-  }
+
 
   void toggleRememberMe() {
     rememberMe.value = !rememberMe.value;
