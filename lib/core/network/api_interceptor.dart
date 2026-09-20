@@ -13,6 +13,18 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    final uri = options.uri;
+    final isAwsS3 = uri.host.contains('amazonaws.com') ||
+        uri.queryParameters.containsKey('X-Amz-Algorithm') ||
+        uri.queryParameters.containsKey('X-Amz-Signature') ||
+        uri.queryParameters.containsKey('x-amz-signature') ||
+        uri.queryParameters.containsKey('Signature');
+
+    if (isAwsS3) {
+      options.headers.remove('Authorization');
+      return handler.next(options);
+    }
+
     final token = await _storageService.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';

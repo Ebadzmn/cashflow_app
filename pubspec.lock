@@ -313,6 +313,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  flukit_ui:
+    dependency: "direct main"
+    description:
+      name: flukit_ui
+      sha256: "208d13524e59a799d7e2f8a2cac5231ae1972bfe281d84b83ab161b84adae3b7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter:
     dependency: "direct main"
     description: flutter

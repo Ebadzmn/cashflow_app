@@ -1,8 +1,8 @@
 class ApiEndpoints {
-  static const String baseUrl = 'https://api.mycashflowiq.com/api/v1';
-  static const String socketBaseUrl = 'https://api.mycashflowiq.com';
-  // static const String baseUrl = 'http://10.10.26.198:5000/api/v1';
-  // static const String socketBaseUrl = 'http://10.10.26.198:5000';
+  // static const String baseUrl = 'https://api.mycashflowiq.com/api/v1';
+  // static const String socketBaseUrl = 'https://api.mycashflowiq.com';
+  static const String baseUrl = 'http://10.10.7.39:5000/api/v1';
+  static const String socketBaseUrl = 'http://10.10.7.39:5000';
   static const String login = '/auth/login';
   static const String signup = '/user'; // Updated for registration API
   static const String profile = '/user/profile';

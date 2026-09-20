@@ -114,9 +114,15 @@ class ApiClient {
     String url,
     String savePath, {
     ProgressCallback? onReceiveProgress,
+    Options? options,
   }) async {
     try {
-      await _dio.download(url, savePath, onReceiveProgress: onReceiveProgress);
+      await _dio.download(
+        url,
+        savePath,
+        onReceiveProgress: onReceiveProgress,
+        options: options,
+      );
     } on DioException catch (e) {
       throw NetworkException.fromDioError(e);
     }
